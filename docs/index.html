@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zach's Wine Space</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0f; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; color: #ccc; }
+    canvas { display: block; }
+
+    /* Tooltip: */
+    #tooltip {
+      position: absolute;
+      background: rgba(12, 12, 20, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 14px 18px;
+      pointer-events: none;
+      display: none;
+      max-width: 340px;
+      min-width: 240px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      z-index: 100;
+      line-height: 1.5;
+    }
+    #tooltip .tt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    #tooltip .tt-header h3 {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.3;
+    }
+    #tooltip .tt-rating {
+      font-size: 16px;
+      flex-shrink: 0;
+      line-height: 1;
+      filter: grayscale(100%) brightness(1.8);
+      opacity: 0.85;
+    }
+    #tooltip .row { font-size: 12px; color: #aaa; }
+    #tooltip .row span { color: #ddd; }
+    #tooltip .tags { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px; }
+    #tooltip .tag {
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: #bbb;
+    }
+    #tooltip .divider { border-top: 1px solid rgba(255,255,255,0.08); margin: 7px 0; }
+
+    /* Left controls: */
+    #left-panel {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 32px);
+    }
+    #hud { margin-bottom: 8px; }
+    #hud h1 { font-size: 20px; color: #fff; font-weight: 700; margin-bottom: 2px; }
+    #hud p {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 1px;
+    }
+    #hud a {
+      font-size: 12px;
+      color: #667;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    #hud a:hover {
+      color: #99a;
+      text-decoration: underline;
+    }
+
+    .ctrl-row select {
+      background: #1a1a24;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px;
+      color: #ddd;
+      font-size: 12px;
+      cursor: pointer;
+      outline: none;
+      color-scheme: dark;
+      margin-bottom: 8px;
+    }
+    .ctrl-row select:hover { border-color: rgba(255,255,255,0.25); }
+    .ctrl-row select option { background: #1a1a24; color: #ddd; }
+
+    #legend {
+      flex: 1;
+      overflow-y: auto;
+      font-size: 12px;
+      direction: rtl;
+      padding-right: 6px;
+    }
+    #legend > * { direction: ltr; }
+    #legend::-webkit-scrollbar { width: 4px; }
+    #legend::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Right controls: */
+    #controls {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .right-ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="tooltip">
+    <div class="tt-header">
+      <h3 id="tt-title"></h3>
+      <span class="tt-rating" id="tt-rating"></span>
+    </div>
+    <div id="tt-body"></div>
+  </div>
+
+  <div id="left-panel">
+    <div id="hud">
+      <h1>Zach's Wine Space</h1>
+      <a id="wine-count" href="wines.csv" download="wines.csv"></a>
+    </div>
+    <div class="ctrl-row">
+      <select id="color-by" class="ctrl-row">
+        <option value="country">Country</option>
+        <option value="grape">Grape</option>
+        <option value="region">Region</option>
+        <option value="color">Wine Color</option>
+        <option value="sparkling">Sparkling</option>
+        <option value="price">Price</option>
+        <option value="body">Body</option>
+        <option value="acidity">Acidity</option>
+        <option value="tannins">Tannins</option>
+        <option value="dryness">Dryness</option>
+        <option value="sentiment">Sentiment</option>
+      </select>
+    </div>
+    <div id="legend"></div>
+  </div>
+
+  <div id="controls">
+    <div class="right-ctrl-row">
+      <span>Show neighbors</span>
+      <input type="checkbox" id="show-neighbors" checked />
+    </div>
+    <div class="right-ctrl-row">
+      <span>Show labels</span>
+      <input type="checkbox" id="show-labels" />
+    </div>
+    <div class="right-ctrl-row">
+      <span>Top grape</span>
+      <input type="checkbox" id="glow-top-grape" />
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+  import * as THREE from "three";
+  import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+  // ============== > Helpers:
+
+  const titleCase = s => s.replace(/\b\w/g, c => c.toUpperCase());
+
+  function scaleLabel(v) {
+    if (v <= 0.2) return "Low";
+    if (v <= 0.3) return "Med\u2009−";
+    if (v <= 0.5) return "Medium";
+    if (v <= 0.7) return "Med\u2009+";
+    return "High";
+  }
+
+  const rgbCss = ([r, g, b]) => `rgb(${Math.round(r * 255)},${Math.round(g * 255)},${Math.round(b * 255)})`;
+
+  function legendItem(cssColor, label) {
+    return `<div class="legend-item"><div class="legend-dot" style="background:${cssColor}"></div> ${label}</div>`;
+  }
+
+  // ============== > Config:
+
+  const RATING_ICONS = { "-2": "👎👎", "-1": "👎", "0": "", "1": "👍", "2": "👍👍" };
+
+  const SENTIMENT = {
+    "-2": { label: "Hate",       color: [1.0,  0.1,  0.1 ] },
+    "-1": { label: "Dislike",    color: [0.45, 0.2,  0.15] },
+     "0": { label: "Ambivalent", color: [0.16, 0.16, 0.14] },
+     "1": { label: "Like",       color: [0.25, 0.45, 0.2 ] },
+     "2": { label: "Love",       color: [0.1,  1.0,  0.2 ] },
+  };
+
+  const SPARKLING_COLORS = {
+    yes: { label: "Sparkling",   color: [1.0, 0.85, 0.2] },
+    no:  { label: "Not",         color: [0.16, 0.16, 0.14] },
+  };
+
+  const WINE_COLOR_MAP = {
+    "water white": "#f0eed8", "pale straw": "#f5f0c1", "straw": "#e8d44d",
+    "golden straw": "#d4b830", "golden": "#c9a820", "deep gold": "#b8860b",
+    "gold": "#d4a017", "amber": "#cf8a20", "pink": "#f4a6b0",
+    "pale salmon": "#f0b8a8", "salmon": "#e88771", "copper": "#c07040",
+    "pale ruby": "#c45070", "ruby": "#9b111e", "deep ruby": "#6b0a0e",
+    "garnet": "#733635", "purple": "#5c2058", "deep purple": "#3a0e40",
+    "brick red": "#8b4513", "blood red": "#880000", "maroon red": "#6c1f1f",
+    "red": "#c0392b", "tawny": "#a05030", "brown": "#5c3317",
+  };
+
+  const CATEGORICAL_PALETTE = [
+    "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231",
+    "#911eb4", "#42d4f4", "#f032e6", "#bfef45", "#fabed4",
+    "#469990", "#dcbeff", "#9a6324", "#800000", "#aaffc3",
+    "#808000", "#ffd8b1", "#000075", "#a9a9a9", "#fffac8",
+    "#7cb9e8", "#c9ffe5", "#b5651d", "#ff6961",
+  ];
+
+  // ============== > Load data:
+
+  const data = await (await fetch("wines_3d.json")).json();
+  document.getElementById("wine-count").textContent = `${data.length} wines mapped`;
+
+  // ============== > Compute top grape(s):
+
+  function findTopGrapes(wines) {
+    const grapeStats = {};
+
+    for (const w of wines) {
+      const g = w.grape;
+      if (!grapeStats[g]) grapeStats[g] = { sum: 0, count: 0 };
+
+      grapeStats[g].sum += w.rating;
+      grapeStats[g].count += 1;
+    }
+
+    let maxAvg = -Infinity;
+
+    for (const g in grapeStats) {
+      const avg = grapeStats[g].sum / grapeStats[g].count;
+      grapeStats[g].avg = avg;
+
+      if (avg > maxAvg) maxAvg = avg;
+    }
+
+    return new Set(
+      Object.keys(grapeStats).filter(g => grapeStats[g].avg === maxAvg)
+    );
+  }
+
+  const topGrapes = findTopGrapes(data);
+
+  // ============== > Scene setup:
+
+  const scene = new THREE.Scene();
+
+  scene.background = new THREE.Color(0x0a0a0f);
+  scene.fog = new THREE.FogExp2(0x0a0a0f, 0.012);
+
+  const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 500);
+
+  camera.position.set(18, 9, 18);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(devicePixelRatio);
+  document.body.appendChild(renderer.domElement);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+
+  controls.enableDamping   = true;
+  controls.dampingFactor   = 0.06;
+  controls.autoRotate      = true;
+  controls.autoRotateSpeed = 0.3;
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+
+  dirLight.position.set(10, 20, 10);
+  scene.add(dirLight);
+
+  // ============== > Scale & Center:
+
+  const xs = data.map(d => d.x), ys = data.map(d => d.y), zs = data.map(d => d.z);
+  const range = Math.max(
+    Math.max(...xs) - Math.min(...xs),
+    Math.max(...ys) - Math.min(...ys),
+    Math.max(...zs) - Math.min(...zs)
+  );
+  const S  = 24 / range;
+  const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
+  const cy = (Math.max(...ys) + Math.min(...ys)) / 2;
+  const cz = (Math.max(...zs) + Math.min(...zs)) / 2;
+
+  const pos = data.map(d => [
+    -(d.y - cy) * S,
+    (d.x - cx) * S,
+    (d.z - cz) * S,
+  ]);
+
+  // ============== > Point cloud:
+
+  const geom      = new THREE.BufferGeometry();
+  const positions = new Float32Array(data.length * 3);
+  const colors    = new Float32Array(data.length * 3);
+
+  pos.forEach(([x, y, z], i) => {
+    positions[i * 3] = x; positions[i * 3 + 1] = y; positions[i * 3 + 2] = z;
+  });
+  geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geom.setAttribute("color",    new THREE.BufferAttribute(colors, 3));
+
+  const circleCanvas = document.createElement("canvas");
+
+  circleCanvas.width = 64; circleCanvas.height = 64;
+
+  const cctx = circleCanvas.getContext("2d");
+
+  cctx.beginPath(); cctx.arc(32, 32, 30, 0, Math.PI * 2);
+  cctx.fillStyle = "#ffffff"; cctx.fill();
+
+  const circleTexture = new THREE.CanvasTexture(circleCanvas);
+  const pointMat = new THREE.PointsMaterial({
+    size: 0.6,
+    vertexColors: true,
+    sizeAttenuation: true,
+    transparent: true,
+    opacity: 0.9,
+    map: circleTexture,
+    alphaMap: circleTexture,
+    depthWrite: false,
+  });
+  const points = new THREE.Points(geom, pointMat);
+
+  scene.add(points);
+
+  // ============== > Glow layer for top grape:
+
+  // Glow texture: soft radial gradient
+  const glowCanvas = document.createElement("canvas");
+
+  glowCanvas.width = 128; glowCanvas.height = 128;
+
+  const gctx = glowCanvas.getContext("2d");
+  const grad = gctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+
+  grad.addColorStop(0, "rgba(255,255,255,0.6)");
+  grad.addColorStop(0.3, "rgba(255,255,255,0.2)");
+  grad.addColorStop(1, "rgba(255,255,255,0.0)");
+  gctx.fillStyle = grad;
+  gctx.fillRect(0, 0, 128, 128);
+
+  const glowTexture = new THREE.CanvasTexture(glowCanvas);
+  const glowGeom = new THREE.BufferGeometry();
+  const glowPositions = [];
+  const glowColors    = [];
+  const glowIndices   = [];
+
+  data.forEach((w, i) => {
+    if (topGrapes.has(w.grape)) {
+      glowIndices.push(i);
+      glowPositions.push(pos[i][0], pos[i][1], pos[i][2]);
+      glowColors.push(0.7, 0.98, 0.81);
+    }
+  });
+
+  glowGeom.setAttribute("position", new THREE.Float32BufferAttribute(glowPositions, 3));
+  glowGeom.setAttribute("color",    new THREE.Float32BufferAttribute(glowColors, 3));
+
+  const glowMat = new THREE.PointsMaterial({
+    size: 2.0,
+    vertexColors: true,
+    sizeAttenuation: true,
+    transparent: true,
+    opacity: 0.45,
+    map: glowTexture,
+    alphaMap: glowTexture,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const glowPoints = new THREE.Points(glowGeom, glowMat);
+
+  glowPoints.visible = false;
+  scene.add(glowPoints);
+
+  document.getElementById("glow-top-grape").addEventListener("change", e => {
+    glowPoints.visible = e.target.checked;
+  });
+
+  // ============== > Neighbor lines:
+
+  const lineGroup = new THREE.Group();
+
+  scene.add(lineGroup);
+
+  function buildNeighborLines() {
+    while (lineGroup.children.length) lineGroup.remove(lineGroup.children[0]);
+
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x334466, transparent: true, opacity: 0.2 });
+
+    data.forEach((w, i) => {
+      (w.neighbors || []).forEach(j => {
+        if (j > i) {
+          const lg = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(...pos[i]),
+            new THREE.Vector3(...pos[j]),
+          ]);
+          lineGroup.add(new THREE.Line(lg, lineMat));
+        }
+      });
+    });
+  }
+  buildNeighborLines();
+
+  document.getElementById("show-neighbors").addEventListener("change", e => {
+    lineGroup.visible = e.target.checked;
+  });
+
+  // ============== > Labels:
+
+  const labelGroup = new THREE.Group();
+  scene.add(labelGroup);
+
+  function makeLabel(text, position) {
+    const canvas = document.createElement("canvas");
+    const ctx    = canvas.getContext("2d");
+
+    canvas.width = 512; canvas.height = 64;
+    ctx.font = "bold 28px system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.fillText(text, 4, 42);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+    const sprite = new THREE.Sprite(mat);
+
+    sprite.position.set(position[0], position[1] + 0.9, position[2]);
+    sprite.scale.set(5, 0.65, 1);
+
+    return sprite;
+  }
+
+  function buildLabels() {
+    while (labelGroup.children.length) labelGroup.remove(labelGroup.children[0]);
+
+    data.forEach((w, i) => {
+      labelGroup.add(makeLabel(`${w.producer} ${w.vintage}`, pos[i]));
+    });
+  }
+  buildLabels();
+  labelGroup.visible = false;
+
+  document.getElementById("show-labels").addEventListener("change", e => {
+    labelGroup.visible = e.target.checked;
+  });
+
+  // ============== > Coloring:
+
+  function setPointColor(i, r, g, b) {
+    colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b;
+  }
+
+  function applyColors(field) {
+    const legend = document.getElementById("legend");
+    legend.innerHTML = "";
+
+    if (field === "price") {
+      const prices = data.map(d => d.price);
+      const lo = Math.min(...prices), hi = Math.max(...prices);
+
+      data.forEach((w, i) => {
+        const t = hi > lo ? (w.price - lo) / (hi - lo) : 0.5;
+        setPointColor(i, 0.2 + t * 0.8, 0.8 - t * 0.4, 0.1);
+      });
+
+      legend.innerHTML = legendItem("#3c3", `$${lo.toFixed(0)}`)
+                       + legendItem("#d91", `$${hi.toFixed(0)}`);
+
+    } else if (["body", "acidity", "tannins", "dryness"].includes(field)) {
+      data.forEach((w, i) => {
+        const v = w[field];
+        setPointColor(i, v, 0.15, 1.0 - v);
+      });
+
+      legend.innerHTML = legendItem("#22f", "Low") + legendItem("#f22", "High");
+
+    } else if (field === "sentiment") {
+      data.forEach((w, i) => {
+        const s = SENTIMENT[String(w.rating)] || SENTIMENT["0"];
+        setPointColor(i, ...s.color);
+      });
+
+      for (const key of ["-2", "-1", "0", "1", "2"]) {
+        const s = SENTIMENT[key];
+        legend.innerHTML += legendItem(rgbCss(s.color), s.label);
+      }
+
+    } else if (field === "sparkling") {
+      data.forEach((w, i) => {
+        const s = w.sparkling ? SPARKLING_COLORS.yes : SPARKLING_COLORS.no;
+        setPointColor(i, ...s.color);
+      });
+
+      legend.innerHTML = legendItem(rgbCss(SPARKLING_COLORS.yes.color), SPARKLING_COLORS.yes.label)
+                       + legendItem(rgbCss(SPARKLING_COLORS.no.color),  SPARKLING_COLORS.no.label);
+
+    } else if (field === "color") {
+      data.forEach((w, i) => {
+        const c = new THREE.Color(WINE_COLOR_MAP[w.color] || "#888888");
+        setPointColor(i, c.r, c.g, c.b);
+      });
+
+      [...new Set(data.map(d => d.color))].sort().forEach(name => {
+        legend.innerHTML += legendItem(WINE_COLOR_MAP[name] || "#888", titleCase(name));
+      });
+
+    } else {
+      // Categorical:
+      const vals = [...new Set(data.map(d => d[field]))].sort();
+      const map  = {};
+
+      vals.forEach((v, i) => map[v] = CATEGORICAL_PALETTE[i % CATEGORICAL_PALETTE.length]);
+      data.forEach((w, i) => {
+        const c = new THREE.Color(map[w[field]]);
+        setPointColor(i, c.r, c.g, c.b);
+      });
+      vals.forEach(v => {
+        legend.innerHTML += legendItem(map[v], v);
+      });
+    }
+
+    geom.attributes.color.needsUpdate = true;
+  }
+
+  applyColors("country");
+
+  document.getElementById("color-by").addEventListener("change", e => {
+    applyColors(e.target.value);
+  });
+
+  // ============== > Hover / Tooltips:
+
+  const raycaster = new THREE.Raycaster();
+
+  raycaster.params.Points.threshold = 0.4;
+
+  const mouse    = new THREE.Vector2();
+  const tooltip  = document.getElementById("tooltip");
+  const ttTitle  = document.getElementById("tt-title");
+  const ttRating = document.getElementById("tt-rating");
+  const ttBody   = document.getElementById("tt-body");
+
+  let hoveredIdx = -1;
+
+  function formatTooltip(w) {
+    const vintage = w.vintage ? ` ${w.vintage}` : "";
+    ttTitle.textContent = `${w.producer},${vintage} ${w.grape}`;
+    ttRating.textContent = RATING_ICONS[String(w.rating)] || "";
+
+    const colorStr = titleCase(w.color);
+    const priceStr = `$${w.price.toFixed(0)}`;
+    const abvStr   = `${(w.alcohol * 100).toFixed(1)}%`;
+    const sparkStr = w.sparkling ? " · 🫧 Sparkling" : "";
+
+    ttBody.innerHTML = `
+      <div class="row">Region <span>${w.region}, ${w.country}</span></div>
+      <div class="row">Color <span>${colorStr}</span> • Price <span>${priceStr}</span> • ABV <span>${abvStr}</span>${sparkStr}</div>
+      <div class="divider"></div>
+      <div class="row">Body <span>${scaleLabel(w.body)}</span> • Acidity <span>${scaleLabel(w.acidity)}</span> • Tannin <span>${scaleLabel(w.tannins)}</span></div>
+      <div class="row">Dryness <span>${scaleLabel(w.dryness)}</span> • Length <span>${scaleLabel(w.length)}</span> • Warmth <span>${scaleLabel(w.warmth)}</span></div>
+      <div class="divider"></div>
+      <div class="tags">${w.smells.map(s => `<span class="tag">${titleCase(s)}</span>`).join("")}</div>
+      <div class="divider"></div>
+      <div class="tags">${w.flavors.map(f => `<span class="tag">${titleCase(f)}</span>`).join("")}</div>
+    `;
+  }
+
+  window.addEventListener("mousemove", e => {
+    mouse.x =  (e.clientX / innerWidth)  * 2 - 1;
+    mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const hits = raycaster.intersectObject(points);
+
+    if (hits.length) {
+      const idx = hits[0].index;
+
+      if (idx !== hoveredIdx) { hoveredIdx = idx; formatTooltip(data[idx]); }
+
+      tooltip.style.display = "block";
+
+      let tx = e.clientX + 18, ty = e.clientY - 14;
+
+      if (tx + 350 > innerWidth)  tx = e.clientX - 360;
+      if (ty + 300 > innerHeight) ty = innerHeight - 310;
+      if (ty < 10) ty = 10;
+
+      tooltip.style.left = tx + "px";
+      tooltip.style.top  = ty + "px";
+      document.body.style.cursor = "pointer";
+
+    } else {
+      tooltip.style.display = "none";
+      hoveredIdx = -1;
+      document.body.style.cursor = "default";
+    }
+  });
+
+  // ============== > Interaction:
+
+  renderer.domElement.addEventListener("pointerdown", () => { controls.autoRotate = false; });
+
+  let isRolling = false, rollStartX = 0;
+
+  renderer.domElement.addEventListener("pointerdown", e => {
+    if (e.ctrlKey || e.metaKey) {
+      isRolling = true;
+      rollStartX = e.clientX;
+      controls.enabled = false;
+      e.preventDefault();
+    }
+  });
+
+  window.addEventListener("pointermove", e => {
+    if (!isRolling) return;
+
+    const dx = e.clientX - rollStartX;
+
+    rollStartX = e.clientX;
+
+    const axis = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
+
+    camera.up.applyAxisAngle(axis, dx * -0.005);
+  });
+
+  window.addEventListener("pointerup", () => {
+    if (isRolling) { isRolling = false; controls.enabled = true; }
+  });
+
+  // ============== > Render:
+
+  window.addEventListener("resize", () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+
+  (function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  })();
+  </script>
+</body>
+</html>
