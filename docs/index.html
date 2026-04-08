@@ -684,6 +684,8 @@
   // ============== > Interaction:
 
   renderer.domElement.addEventListener("pointerdown", () => {
+    if (event.button === 2) return; // Ignore right click
+    
     controls.autoRotate = false;
     btnSpin.classList.remove("active");
   });
