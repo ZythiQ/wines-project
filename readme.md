@@ -15,4 +15,4 @@ This project maps 70 wines tasted in and outside class into a navigable 3D scatt
 - **Frontend:** `HTML`, `CSS`, `JS`, `Three.js`
 - **Hosting:** `GitHub Pages`
 
-Created for the **HSPT-160** final project (Spring 2025–26) under the *Technology* track. Let me know if you think this is cool ;)
+Created for the **HSPT-160** final project (Spring 2025–26) under the *Technology* track. Let me know if you like ;)
