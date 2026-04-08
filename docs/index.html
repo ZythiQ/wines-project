@@ -58,7 +58,7 @@
     }
     #tooltip .divider { border-top: 1px solid rgba(255,255,255,0.08); margin: 7px 0; }
 
-    /* Left controls: */
+    /* Left panel: */
     #left-panel {
       position: absolute;
       top: 16px;
@@ -70,29 +70,14 @@
     }
     #hud { margin-bottom: 8px; }
     #hud h1 { font-size: 20px; color: #fff; font-weight: 700; margin-bottom: 2px; }
-    #hud p {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 1px;
-    }
     #hud a {
       font-size: 12px;
       color: #667;
       text-decoration: none;
       cursor: pointer;
     }
-    #hud a:hover {
-      color: #99a;
-      text-decoration: underline;
-    }
-
-    /* HUD icon buttons */
-    #hud .hud-btn-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 6px;
-    }
+    #hud a:hover { color: #99a; text-decoration: underline; }
+    #hud .hud-btn-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
     .hud-icon-btn {
       background: none;
       border: none;
@@ -115,7 +100,6 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-
     .ctrl-row select {
       background: #1a1a24;
       border: 1px solid rgba(255,255,255,0.12);
@@ -129,7 +113,6 @@
     }
     .ctrl-row select:hover { border-color: rgba(255,255,255,0.25); }
     .ctrl-row select option { background: #1a1a24; color: #ddd; }
-
     #legend {
       flex: 1;
       overflow-y: auto;
@@ -161,6 +144,19 @@
       font-size: 12px;
       color: #888;
     }
+
+    /* Flat graph canvas: */
+    #graph-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: none;
+      cursor: grab;
+    }
+    #graph-canvas:active { cursor: grabbing; }
   </style>
 </head>
 <body>
@@ -172,6 +168,8 @@
     </div>
     <div id="tt-body"></div>
   </div>
+
+  <canvas id="graph-canvas"></canvas>
 
   <div id="left-panel">
     <div id="hud">
@@ -189,7 +187,7 @@
       <a id="wine-count" href="wines.csv" download="wines.csv"></a>
     </div>
     <div class="ctrl-row">
-      <select id="color-by" class="ctrl-row">
+      <select id="color-by">
         <option value="country">Country</option>
         <option value="grape">Grape</option>
         <option value="region">Region</option>
@@ -216,7 +214,11 @@
       <input type="checkbox" id="show-labels" />
     </div>
     <div class="right-ctrl-row">
-      <span>My top grape</span>
+      <span>Flat view</span>
+      <input type="checkbox" id="flatten-graph" />
+    </div>
+    <div class="right-ctrl-row">
+      <span>My top</span>
       <input type="checkbox" id="glow-top-grape" />
     </div>
   </div>
@@ -238,6 +240,15 @@
 
   const titleCase = s => s.replace(/\b\w/g, c => c.toUpperCase());
 
+  const rgbCss = ([r, g, b]) =>
+    `rgb(${Math.round(r*255)},${Math.round(g*255)},${Math.round(b*255)})`;
+
+  const legendItem = (css, label) =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${css}"></div> ${label}</div>`;
+
+  const srgbToLinear = c =>
+    c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+
   function scaleLabel(v) {
     if (v <= 0.2) return "Low";
     if (v <= 0.3) return "Med\u2009−";
@@ -246,13 +257,15 @@
     return "High";
   }
 
-  const rgbCss = ([r, g, b]) => `rgb(${Math.round(r * 255)},${Math.round(g * 255)},${Math.round(b * 255)})`;
-
-  function legendItem(cssColor, label) {
-    return `<div class="legend-item"><div class="legend-dot" style="background:${cssColor}"></div> ${label}</div>`;
+  function clearGroup(group) {
+    while (group.children.length) group.remove(group.children[0]);
   }
 
   // ============== > Config:
+
+  const EDGE_OPACITY = 0.15;
+  const GLOW_OPACITY = 0.8;
+  const GLOW_RADIUS_FACTOR = 2;
 
   const RATING_ICONS = { "-2": "👎👎", "-1": "👎", "0": "", "1": "👍", "2": "👍👍" };
 
@@ -265,8 +278,8 @@
   };
 
   const SPARKLING_COLORS = {
-    yes: { label: "Sparkling",   color: [1.0, 0.85, 0.2] },
-    no:  { label: "Not",         color: [0.16, 0.16, 0.14] },
+    yes: { label: "Sparkling", color: [1.0,  0.85, 0.2 ] },
+    no:  { label: "Not",       color: [0.16, 0.16, 0.14] },
   };
 
   const WINE_COLOR_MAP = {
@@ -293,203 +306,202 @@
   const data = await (await fetch("wines_3d.json")).json();
   document.getElementById("wine-count").textContent = `${data.length} wines mapped`;
 
-  // ============== > Compute top grape(s):
+  const grapeCount = {};
+  for (const w of data) grapeCount[w.grape] = (grapeCount[w.grape] || 0) + 1;
+  const maxGrapeCount = Math.max(...Object.values(grapeCount));
 
   function findTopGrapes(wines) {
-    const grapeStats = {};
+    const stats = {};
 
     for (const w of wines) {
-      const g = w.grape;
-      if (!grapeStats[g]) grapeStats[g] = { sum: 0, count: 0 };
-
-      grapeStats[g].sum += w.rating;
-      grapeStats[g].count += 1;
+      if (!stats[w.grape]) stats[w.grape] = { sum: 0, count: 0 };
+      stats[w.grape].sum += w.rating;
+      stats[w.grape].count++;
     }
 
     let maxAvg = -Infinity;
 
-    for (const g in grapeStats) {
-      const avg = grapeStats[g].sum / grapeStats[g].count;
-      grapeStats[g].avg = avg;
-
-      if (avg > maxAvg) maxAvg = avg;
+    for (const g in stats) {
+      stats[g].avg = stats[g].sum / stats[g].count;
+      if (stats[g].avg > maxAvg) maxAvg = stats[g].avg;
     }
 
-    return new Set(
-      Object.keys(grapeStats).filter(g => grapeStats[g].avg === maxAvg)
-    );
+    return new Set(Object.keys(stats).filter(g => stats[g].avg === maxAvg));
   }
 
   const topGrapes = findTopGrapes(data);
+  const wineColors = new Array(data.length);
+
+  // Deduplicated edges:
+  const edges = [];
+  { const seen = new Set();
+    data.forEach((w, i) => {
+      for (const j of (w.neighbors || [])) {
+        const key = Math.min(i,j) + ":" + Math.max(i,j);
+
+        if (!seen.has(key)) {
+          seen.add(key);
+          edges.push([i, j]);
+        }
+      }
+    });
+  }
+
+  let showNeighbors = true;
+  let showLabels = false;
+  let showTopGlow = false;
+  let currentView = "cloud";
 
   // ============== > Scene setup:
 
   const scene = new THREE.Scene();
-
   scene.background = new THREE.Color(0x0a0a0f);
   scene.fog = new THREE.FogExp2(0x0a0a0f, 0.012);
 
   const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 500);
-
-  camera.position.set(18, 9, 18);
+  camera.position.set(18, 0, 18);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-
   renderer.setSize(innerWidth, innerHeight);
   renderer.setPixelRatio(devicePixelRatio);
   document.body.appendChild(renderer.domElement);
 
   const controls = new OrbitControls(camera, renderer.domElement);
-
-  controls.enableDamping   = true;
-  controls.dampingFactor   = 0.06;
-  controls.autoRotate      = true;
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.06;
+  controls.autoRotate = true;
   controls.autoRotateSpeed = 0.3;
 
   scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-
   const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
-
   dirLight.position.set(10, 20, 10);
   scene.add(dirLight);
 
-  // ============== > Scale & Center:
+  // ============== > Scale & center:
 
   const xs = data.map(d => d.x), ys = data.map(d => d.y), zs = data.map(d => d.z);
-  const range = Math.max(
-    Math.max(...xs) - Math.min(...xs),
-    Math.max(...ys) - Math.min(...ys),
-    Math.max(...zs) - Math.min(...zs)
-  );
-  const S  = 24 / range;
-  const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
-  const cy = (Math.max(...ys) + Math.min(...ys)) / 2;
-  const cz = (Math.max(...zs) + Math.min(...zs)) / 2;
+
+  const axisRange = (arr) => Math.max(...arr) - Math.min(...arr);
+  const axisMid   = (arr) => (Math.max(...arr) + Math.min(...arr)) / 2;
+
+  const S = 24 / Math.max(axisRange(xs), axisRange(ys), axisRange(zs));
+  const cx = axisMid(xs), cy = axisMid(ys), cz = axisMid(zs);
 
   const pos = data.map(d => [
     -(d.y - cy) * S,
-    (d.x - cx) * S,
-    (d.z - cz) * S,
+     (d.x - cx) * S,
+     (d.z - cz) * S,
   ]);
+
+  // ============== > Canvas texture helper:
+
+  function makeCanvasTexture(size, draw) {
+    const cv = document.createElement("canvas");
+    cv.width = cv.height = size;
+    draw(cv.getContext("2d"), size);
+    return new THREE.CanvasTexture(cv);
+  }
 
   // ============== > Point cloud:
 
-  const geom      = new THREE.BufferGeometry();
+  const circleTexture = makeCanvasTexture(64, (ctx, s) => {
+    ctx.beginPath();
+    ctx.arc(s/2, s/2, s/2 - 2, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+  });
+
+  const glowTexture = makeCanvasTexture(128, (ctx, s) => {
+    const g = ctx.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+    g.addColorStop(0,   "rgba(255,255,255,0.6)");
+    g.addColorStop(0.3, "rgba(255,255,255,0.2)");
+    g.addColorStop(1,   "rgba(255,255,255,0.0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, s, s);
+  });
+
+  const geom = new THREE.BufferGeometry();
   const positions = new Float32Array(data.length * 3);
-  const colors    = new Float32Array(data.length * 3);
+  const colors = new Float32Array(data.length * 3);
 
   pos.forEach(([x, y, z], i) => {
-    positions[i * 3] = x; positions[i * 3 + 1] = y; positions[i * 3 + 2] = z;
+    positions[i*3] = x;
+    positions[i*3+1] = y;
+    positions[i*3+2] = z;
   });
   geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   geom.setAttribute("color",    new THREE.BufferAttribute(colors, 3));
 
-  const circleCanvas = document.createElement("canvas");
-
-  circleCanvas.width = 64; circleCanvas.height = 64;
-
-  const cctx = circleCanvas.getContext("2d");
-
-  cctx.beginPath(); cctx.arc(32, 32, 30, 0, Math.PI * 2);
-  cctx.fillStyle = "#ffffff"; cctx.fill();
-
-  const circleTexture = new THREE.CanvasTexture(circleCanvas);
-  const pointMat = new THREE.PointsMaterial({
-    size: 0.6,
+  const sharedPointMatOpts = {
     vertexColors: true,
     sizeAttenuation: true,
     transparent: true,
-    opacity: 0.9,
     map: circleTexture,
     alphaMap: circleTexture,
     depthWrite: false,
-  });
-  const points = new THREE.Points(geom, pointMat);
+  };
 
+  const pointMat = new THREE.PointsMaterial({ ...sharedPointMatOpts, size: 0.6, opacity: 0.9 });
+  const points = new THREE.Points(geom, pointMat);
   scene.add(points);
 
-  // ============== > Glow layer for top grape:
-
-  // Glow texture: soft radial gradient
-  const glowCanvas = document.createElement("canvas");
-
-  glowCanvas.width = 128; glowCanvas.height = 128;
-
-  const gctx = glowCanvas.getContext("2d");
-  const grad = gctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-
-  grad.addColorStop(0, "rgba(255,255,255,0.6)");
-  grad.addColorStop(0.3, "rgba(255,255,255,0.2)");
-  grad.addColorStop(1, "rgba(255,255,255,0.0)");
-  gctx.fillStyle = grad;
-  gctx.fillRect(0, 0, 128, 128);
-
-  const glowTexture = new THREE.CanvasTexture(glowCanvas);
-  const glowGeom = new THREE.BufferGeometry();
-  const glowPositions = [];
-  const glowColors    = [];
-  const glowIndices   = [];
-
-  data.forEach((w, i) => {
-    if (topGrapes.has(w.grape)) {
-      glowIndices.push(i);
-      glowPositions.push(pos[i][0], pos[i][1], pos[i][2]);
-      glowColors.push(0.7, 0.98, 0.81);
-    }
-  });
-
-  glowGeom.setAttribute("position", new THREE.Float32BufferAttribute(glowPositions, 3));
-  glowGeom.setAttribute("color",    new THREE.Float32BufferAttribute(glowColors, 3));
+  // ============== > Glow layer:
 
   const glowMat = new THREE.PointsMaterial({
-    size: 2.0,
-    vertexColors: true,
-    sizeAttenuation: true,
-    transparent: true,
-    opacity: 0.45,
+    ...sharedPointMatOpts,
+    size: GLOW_RADIUS_FACTOR,
+    opacity: GLOW_OPACITY,
     map: glowTexture,
     alphaMap: glowTexture,
-    depthWrite: false,
     blending: THREE.AdditiveBlending,
   });
 
-  const glowPoints = new THREE.Points(glowGeom, glowMat);
-
+  const glowPoints = new THREE.Points(new THREE.BufferGeometry(), glowMat);
   glowPoints.visible = false;
   scene.add(glowPoints);
 
-  document.getElementById("glow-top-grape").addEventListener("change", e => {
-    glowPoints.visible = e.target.checked;
-  });
+  function buildGlowPoints() {
+    const glowPositions = [], glowColors = [];
+
+    data.forEach((w, i) => {
+      if (!topGrapes.has(w.grape)) return;
+      const [r, g, b] = wineColors[i] || [0.7, 0.98, 0.81];
+      glowPositions.push(...pos[i]);
+      glowColors.push(r, g, b);
+    });
+
+    glowPoints.geometry.setAttribute("position", new THREE.Float32BufferAttribute(glowPositions, 3));
+    glowPoints.geometry.setAttribute("color",    new THREE.Float32BufferAttribute(glowColors, 3));
+  }
+  buildGlowPoints();
 
   // ============== > Neighbor lines:
 
   const lineGroup = new THREE.Group();
-
   scene.add(lineGroup);
 
   function buildNeighborLines() {
-    while (lineGroup.children.length) lineGroup.remove(lineGroup.children[0]);
+    clearGroup(lineGroup);
 
-    const lineMat = new THREE.LineBasicMaterial({ color: 0x334466, transparent: true, opacity: 0.2 });
+    for (const [i, j] of edges) {
+      const ci = wineColors[i] || [0.3, 0.3, 0.4];
+      const cj = wineColors[j] || [0.3, 0.3, 0.4];
 
-    data.forEach((w, i) => {
-      (w.neighbors || []).forEach(j => {
-        if (j > i) {
-          const lg = new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(...pos[i]),
-            new THREE.Vector3(...pos[j]),
-          ]);
-          lineGroup.add(new THREE.Line(lg, lineMat));
-        }
-      });
-    });
+      const lg = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(...pos[i]),
+        new THREE.Vector3(...pos[j]),
+      ]);
+      lg.setAttribute("color", new THREE.BufferAttribute(new Float32Array([
+        srgbToLinear(ci[0]), srgbToLinear(ci[1]), srgbToLinear(ci[2]),
+        srgbToLinear(cj[0]), srgbToLinear(cj[1]), srgbToLinear(cj[2]),
+      ]), 3));
+
+      lineGroup.add(new THREE.Line(lg, new THREE.LineBasicMaterial({
+        vertexColors: true, transparent: true, opacity: EDGE_OPACITY,
+      })));
+    }
   }
   buildNeighborLines();
-
-  document.getElementById("show-neighbors").addEventListener("change", e => {
-    lineGroup.visible = e.target.checked;
-  });
 
   // ============== > Labels:
 
@@ -497,42 +509,36 @@
   scene.add(labelGroup);
 
   function makeLabel(text, position) {
-    const canvas = document.createElement("canvas");
-    const ctx    = canvas.getContext("2d");
-
-    canvas.width = 512; canvas.height = 64;
+    const cv = document.createElement("canvas");
+    const ctx = cv.getContext("2d");
+    cv.width = 512
+    cv.height = 64;
     ctx.font = "bold 28px system-ui, sans-serif";
     ctx.fillStyle = "rgba(255,255,255,0.7)";
     ctx.fillText(text, 4, 42);
 
-    const tex = new THREE.CanvasTexture(canvas);
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
-    const sprite = new THREE.Sprite(mat);
-
+    const sprite = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthWrite: false })
+    );
     sprite.position.set(position[0], position[1] + 0.9, position[2]);
     sprite.scale.set(5, 0.65, 1);
-
     return sprite;
   }
 
   function buildLabels() {
-    while (labelGroup.children.length) labelGroup.remove(labelGroup.children[0]);
-
-    data.forEach((w, i) => {
-      labelGroup.add(makeLabel(`${w.producer} ${w.vintage}`, pos[i]));
-    });
+    clearGroup(labelGroup);
+    data.forEach((w, i) => labelGroup.add(makeLabel(`${w.producer} ${w.vintage}`, pos[i])));
   }
   buildLabels();
   labelGroup.visible = false;
 
-  document.getElementById("show-labels").addEventListener("change", e => {
-    labelGroup.visible = e.target.checked;
-  });
-
   // ============== > Coloring:
 
   function setPointColor(i, r, g, b) {
-    colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b;
+    wineColors[i] = [r, g, b];
+    colors[i*3]   = srgbToLinear(r);
+    colors[i*3+1] = srgbToLinear(g);
+    colors[i*3+2] = srgbToLinear(b);
   }
 
   function applyColors(field) {
@@ -545,26 +551,21 @@
 
       data.forEach((w, i) => {
         const t = hi > lo ? (w.price - lo) / (hi - lo) : 0.5;
-        setPointColor(i, 0.2 + t * 0.8, 0.8 - t * 0.4, 0.1);
+        setPointColor(i, t, 1.0 - t, 0);
       });
-
-      legend.innerHTML = legendItem("#3c3", `$${lo.toFixed(0)}`)
-                       + legendItem("#d91", `$${hi.toFixed(0)}`);
+      legend.innerHTML = legendItem(rgbCss([0, 1, 0]), `$${lo.toFixed(0)}`) +
+                        legendItem(rgbCss([1, 0, 0]), `$${hi.toFixed(0)}`);
 
     } else if (["body", "acidity", "tannins", "dryness"].includes(field)) {
-      data.forEach((w, i) => {
-        const v = w[field];
-        setPointColor(i, v, 0.15, 1.0 - v);
-      });
-
-      legend.innerHTML = legendItem("#22f", "Low") + legendItem("#f22", "High");
+      data.forEach((w, i) => setPointColor(i, w[field], 0.15, 1.0 - w[field]));
+      legend.innerHTML = legendItem(rgbCss([0, 0.15, 1]), "Low") +
+                         legendItem(rgbCss([1, 0.15, 0]), "High");
 
     } else if (field === "sentiment") {
       data.forEach((w, i) => {
         const s = SENTIMENT[String(w.rating)] || SENTIMENT["0"];
         setPointColor(i, ...s.color);
       });
-
       for (const key of ["-2", "-1", "0", "1", "2"]) {
         const s = SENTIMENT[key];
         legend.innerHTML += legendItem(rgbCss(s.color), s.label);
@@ -575,117 +576,109 @@
         const s = w.sparkling ? SPARKLING_COLORS.yes : SPARKLING_COLORS.no;
         setPointColor(i, ...s.color);
       });
-
-      legend.innerHTML = legendItem(rgbCss(SPARKLING_COLORS.yes.color), SPARKLING_COLORS.yes.label)
-                       + legendItem(rgbCss(SPARKLING_COLORS.no.color),  SPARKLING_COLORS.no.label);
+      legend.innerHTML = legendItem(rgbCss(SPARKLING_COLORS.yes.color), SPARKLING_COLORS.yes.label) +
+                         legendItem(rgbCss(SPARKLING_COLORS.no.color),  SPARKLING_COLORS.no.label);
 
     } else if (field === "color") {
       data.forEach((w, i) => {
         const c = new THREE.Color(WINE_COLOR_MAP[w.color] || "#888888");
         setPointColor(i, c.r, c.g, c.b);
       });
-
-      [...new Set(data.map(d => d.color))].sort().forEach(name => {
-        legend.innerHTML += legendItem(WINE_COLOR_MAP[name] || "#888", titleCase(name));
-      });
+      [...new Set(data.map(d => d.color))].sort().forEach(name =>
+        legend.innerHTML += legendItem(WINE_COLOR_MAP[name] || "#888", titleCase(name))
+      );
 
     } else {
       // Categorical:
       const vals = [...new Set(data.map(d => d[field]))].sort();
-      const map  = {};
+      const map = Object.fromEntries(vals.map((v, i) => [v, CATEGORICAL_PALETTE[i % CATEGORICAL_PALETTE.length]]));
 
-      vals.forEach((v, i) => map[v] = CATEGORICAL_PALETTE[i % CATEGORICAL_PALETTE.length]);
       data.forEach((w, i) => {
         const c = new THREE.Color(map[w[field]]);
         setPointColor(i, c.r, c.g, c.b);
       });
-      vals.forEach(v => {
-        legend.innerHTML += legendItem(map[v], v);
-      });
+      vals.forEach(v => legend.innerHTML += legendItem(map[v], v));
     }
 
     geom.attributes.color.needsUpdate = true;
+    buildNeighborLines();
+    buildGlowPoints();
   }
-
   applyColors("country");
 
-  document.getElementById("color-by").addEventListener("change", e => {
-    applyColors(e.target.value);
-  });
+  // ============== > Tooltip:
 
-  // ============== > Hover / Tooltips:
-
-  const raycaster = new THREE.Raycaster();
-
-  raycaster.params.Points.threshold = 0.4;
-
-  const mouse    = new THREE.Vector2();
   const tooltip  = document.getElementById("tooltip");
   const ttTitle  = document.getElementById("tt-title");
   const ttRating = document.getElementById("tt-rating");
   const ttBody   = document.getElementById("tt-body");
 
-  let hoveredIdx = -1;
-
-  function formatTooltip(w) {
+  function showTooltip(w, ex, ey) {
     const vintage = w.vintage ? ` ${w.vintage}` : "";
     ttTitle.textContent = `${w.producer},${vintage} ${w.grape}`;
     ttRating.textContent = RATING_ICONS[String(w.rating)] || "";
 
-    const colorStr = titleCase(w.color);
-    const priceStr = `$${w.price.toFixed(0)}`;
-    const abvStr   = `${(w.alcohol * 100).toFixed(1)}%`;
-    const sparkStr = w.sparkling ? " · 🫧 Sparkling" : "";
+    const tags = arr => arr.map(s => `<span class="tag">${titleCase(s)}</span>`).join("");
 
     ttBody.innerHTML = `
       <div class="row">Region <span>${w.region}, ${w.country}</span></div>
-      <div class="row">Color <span>${colorStr}</span> • Price <span>${priceStr}</span> • ABV <span>${abvStr}</span>${sparkStr}</div>
+      <div class="row">Color <span>${titleCase(w.color)}</span> • Price <span>$${w.price.toFixed(0)}</span> • ABV <span>${(w.alcohol*100).toFixed(1)}%</span>${w.sparkling ? " · 🫧 Sparkling" : ""}</div>
       <div class="divider"></div>
       <div class="row">Body <span>${scaleLabel(w.body)}</span> • Acidity <span>${scaleLabel(w.acidity)}</span> • Tannin <span>${scaleLabel(w.tannins)}</span></div>
       <div class="row">Dryness <span>${scaleLabel(w.dryness)}</span> • Length <span>${scaleLabel(w.length)}</span> • Warmth <span>${scaleLabel(w.warmth)}</span></div>
       <div class="divider"></div>
-      <div class="tags">${w.smells.map(s => `<span class="tag">${titleCase(s)}</span>`).join("")}</div>
+      <div class="tags">${tags(w.smells)}</div>
       <div class="divider"></div>
-      <div class="tags">${w.flavors.map(f => `<span class="tag">${titleCase(f)}</span>`).join("")}</div>
+      <div class="tags">${tags(w.flavors)}</div>
     `;
+
+    let tx = ex + 18, ty = ey - 14;
+    if (tx + 350 > innerWidth)  tx = ex - 360;
+    if (ty + 300 > innerHeight) ty = innerHeight - 310;
+    if (ty < 10) ty = 10;
+    tooltip.style.left = tx + "px";
+    tooltip.style.top  = ty + "px";
+    tooltip.style.display = "block";
   }
 
+  function hideTooltip() { tooltip.style.display = "none"; }
+
+  // ============== > Cloud hover:
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.params.Points.threshold = 0.4;
+  const mouse = new THREE.Vector2();
+  let hoveredIdx = -1;
+
   window.addEventListener("mousemove", e => {
+    if (currentView !== "cloud") return;
+
     mouse.x =  (e.clientX / innerWidth)  * 2 - 1;
     mouse.y = -(e.clientY / innerHeight) * 2 + 1;
-
     raycaster.setFromCamera(mouse, camera);
+
     const hits = raycaster.intersectObject(points);
 
     if (hits.length) {
       const idx = hits[0].index;
+      if (idx !== hoveredIdx) { hoveredIdx = idx; }
 
-      if (idx !== hoveredIdx) { hoveredIdx = idx; formatTooltip(data[idx]); }
-
-      tooltip.style.display = "block";
-
-      let tx = e.clientX + 18, ty = e.clientY - 14;
-
-      if (tx + 350 > innerWidth)  tx = e.clientX - 360;
-      if (ty + 300 > innerHeight) ty = innerHeight - 310;
-      if (ty < 10) ty = 10;
-
-      tooltip.style.left = tx + "px";
-      tooltip.style.top  = ty + "px";
+      showTooltip(data[idx], e.clientX, e.clientY);
       document.body.style.cursor = "pointer";
 
     } else {
-      tooltip.style.display = "none";
+      hideTooltip();
       hoveredIdx = -1;
       document.body.style.cursor = "default";
     }
   });
 
-  // ============== > Interaction:
+  // ============== > Cloud interaction:
 
-  renderer.domElement.addEventListener("pointerdown", () => {
-    if (event.button === 2) return; // Ignore right click
-    
+  const btnSpin = document.getElementById("btn-spin");
+
+  renderer.domElement.addEventListener("pointerdown", e => {
+    if (e.button === 2) return;
     controls.autoRotate = false;
     btnSpin.classList.remove("active");
   });
@@ -703,39 +696,368 @@
 
   window.addEventListener("pointermove", e => {
     if (!isRolling) return;
-
     const dx = e.clientX - rollStartX;
 
     rollStartX = e.clientX;
 
     const axis = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
-
     camera.up.applyAxisAngle(axis, dx * -0.005);
   });
 
   window.addEventListener("pointerup", () => {
-    if (isRolling) { isRolling = false; controls.enabled = true; }
+    if (isRolling) {
+      isRolling = false;
+      controls.enabled = true;
+    }
   });
-
-  // ============== > HUD buttons:
-
-  const btnSpin  = document.getElementById("btn-spin");
 
   btnSpin.addEventListener("click", () => {
     controls.autoRotate = !controls.autoRotate;
     btnSpin.classList.toggle("active", controls.autoRotate);
   });
 
-  // ============== > Render:
+  // ============== > Flat graph:
+
+  const graphCanvas = document.getElementById("graph-canvas");
+  const gCtx = graphCanvas.getContext("2d");
+
+  graphCanvas.addEventListener("contextmenu", e => e.preventDefault());
+
+  const nodes = data.map((w, i) => ({
+    i, x: 0, y: 0, vx: 0, vy: 0,
+    radius: 4 + (grapeCount[w.grape] / maxGrapeCount) * 9,
+  }));
+
+  function initNodePositions() {
+    const pad = 120;
+    const dxs = data.map(d => d.x), dys = data.map(d => d.y);
+    const minX = Math.min(...dxs), maxX = Math.max(...dxs);
+    const minY = Math.min(...dys), maxY = Math.max(...dys);
+    const s = Math.min((innerWidth-pad*2)/(maxX-minX||1), (innerHeight-pad*2)/(maxY-minY||1));
+    const offX = (innerWidth  - (maxX-minX)*s) / 2;
+    const offY = (innerHeight - (maxY-minY)*s) / 2;
+
+    nodes.forEach((n, i) => {
+      n.x = offX + (data[i].x - minX) * s;
+      n.y = offY + (data[i].y - minY) * s;
+      n.vx = n.vy = 0;
+    });
+  }
+
+  const SIM = { repulsion: 3000, attraction: 0.005, idealLen: 90, damping: 0.88, centerPull: 0.001, maxV: 8 };
+  let simTicks = 0;
+
+  function simStep() {
+    const N = nodes.length;
+    const mx = innerWidth / 2, my = innerHeight / 2;
+
+    for (let i = 0; i < N; i++) for (let j = i+1; j < N; j++) {
+      const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
+      const d = Math.sqrt(dx*dx + dy*dy) || 1;
+      const f = SIM.repulsion / (d*d);
+      const fx = (dx/d)*f, fy = (dy/d)*f;
+
+      nodes[i].vx -= fx;
+      nodes[i].vy -= fy;
+      nodes[j].vx += fx;
+      nodes[j].vy += fy;
+    }
+
+    for (const [i, j] of edges) {
+      const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
+      const d = Math.sqrt(dx*dx + dy*dy) || 1;
+      const f = (d - SIM.idealLen) * SIM.attraction;
+      const fx = (dx/d)*f, fy = (dy/d)*f;
+
+      nodes[i].vx += fx;
+      nodes[i].vy += fy;
+      nodes[j].vx -= fx;
+      nodes[j].vy -= fy;
+    }
+
+    for (const n of nodes) {
+      n.vx += (mx - n.x) * SIM.centerPull;
+      n.vy += (my - n.y) * SIM.centerPull;
+      n.vx *= SIM.damping;
+      n.vy *= SIM.damping;
+
+      const sp = Math.sqrt(n.vx*n.vx + n.vy*n.vy);
+
+      if (sp > SIM.maxV) {
+        n.vx = (n.vx/sp)*SIM.maxV;
+        n.vy = (n.vy/sp)*SIM.maxV;
+      }
+      n.x += n.vx;
+      n.y += n.vy;
+    }
+    simTicks++;
+  }
+
+  let gZoom = 1, gPanX = 0, gPanY = 0;
+  let gDragging = false, gDragSX = 0, gDragSY = 0, gPanSX = 0, gPanSY = 0;
+  let gDragNode = null, gHoverIdx = -1, gLockedIdx = -1;
+
+  const s2w = (sx, sy) => [(sx - gPanX) / gZoom, (sy - gPanY) / gZoom];
+
+  function nodeAt(sx, sy) {
+    const [wx, wy] = s2w(sx, sy);
+    for (let i = nodes.length-1; i >= 0; i--) {
+      const n = nodes[i], dx = n.x - wx, dy = n.y - wy;
+      if (dx*dx + dy*dy < (n.radius+4)**2) return i;
+    }
+    return -1;
+  }
+
+  function fitZoom() {
+    if (!nodes.length) return;
+    let mnX = Infinity, mxX = -Infinity, mnY = Infinity, mxY = -Infinity;
+
+    for (const n of nodes) {
+      if (n.x < mnX) mnX = n.x;
+      if (n.x > mxX) mxX = n.x;
+      if (n.y < mnY) mnY = n.y;
+      if (n.y > mxY) mxY = n.y;
+    }
+
+    gZoom = Math.min((innerWidth-120)/(mxX-mnX||1), (innerHeight-120)/(mxY-mnY||1), 1) * 0.85;
+    gPanX = innerWidth/2  - ((mnX+mxX)/2) * gZoom;
+    gPanY = innerHeight/2 - ((mnY+mxY)/2) * gZoom;
+  }
+
+  function drawEdgeFlat(i, j, alpha, width) {
+    const ni = nodes[i], nj = nodes[j];
+    const ci = wineColors[i] || [0.3, 0.3, 0.4];
+    const cj = wineColors[j] || [0.3, 0.3, 0.4];
+    const lg = gCtx.createLinearGradient(ni.x, ni.y, nj.x, nj.y);
+
+    lg.addColorStop(0, `rgba(${ci[0]*255|0},${ci[1]*255|0},${ci[2]*255|0},${alpha})`);
+    lg.addColorStop(1, `rgba(${cj[0]*255|0},${cj[1]*255|0},${cj[2]*255|0},${alpha})`);
+    gCtx.beginPath();
+    gCtx.moveTo(ni.x, ni.y);
+    gCtx.lineTo(nj.x, nj.y);
+    gCtx.strokeStyle = lg;
+    gCtx.lineWidth = width;
+    gCtx.stroke();
+  }
+
+  function drawGraph() {
+    gCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    gCtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+    gCtx.save();
+    gCtx.translate(gPanX, gPanY);
+    gCtx.scale(gZoom, gZoom);
+
+    const activeIdx  = gLockedIdx >= 0 ? gLockedIdx : gHoverIdx;
+    const activeNbrs = activeIdx >= 0 ? new Set(data[activeIdx].neighbors || []) : null;
+
+    if (showNeighbors) {
+      if (activeIdx >= 0) {
+        for (const j of data[activeIdx].neighbors || [])
+          if (j !== activeIdx) drawEdgeFlat(activeIdx, j, 0.6, 2);
+      } else {
+        for (const [i, j] of edges) drawEdgeFlat(i, j, EDGE_OPACITY, 0.8);
+      }
+    }
+
+    for (let idx = 0; idx < nodes.length; idx++) {
+      const n = nodes[idx];
+      const c = wineColors[idx] || [0.5, 0.5, 0.5];
+      const isActive = idx === activeIdx;
+      const isNbr = activeNbrs && activeNbrs.has(idx);
+      const alpha = (activeIdx >= 0 && !isActive && !isNbr) ? 0.15 : 0.9;
+      const r = isActive ? n.radius * 1.3 : n.radius;
+
+      if (showTopGlow && topGrapes.has(data[idx].grape)) {
+        const [tgR, tgG, tgB] = c.map(v => v * 255 | 0);
+        const gr = gCtx.createRadialGradient(n.x, n.y, r, n.x, n.y, r*GLOW_RADIUS_FACTOR);
+
+        gr.addColorStop(0, `rgba(${tgR},${tgG},${tgB},${GLOW_OPACITY})`);
+        gr.addColorStop(1, `rgba(${tgR},${tgG},${tgB},0)`);
+        gCtx.beginPath();
+        gCtx.arc(n.x, n.y, r*GLOW_RADIUS_FACTOR, 0, Math.PI*2);
+        gCtx.fillStyle = gr;
+        gCtx.fill();
+      }
+
+      gCtx.beginPath();
+      gCtx.arc(n.x, n.y, r, 0, Math.PI*2);
+      gCtx.fillStyle = `rgba(${c[0]*255|0},${c[1]*255|0},${c[2]*255|0},${alpha})`;
+      gCtx.fill();
+
+      if (showLabels || isActive || isNbr) {
+        gCtx.font = `${isActive ? "bold " : ""}${isActive ? 11 : 9}px system-ui, sans-serif`;
+        gCtx.fillStyle = `rgba(255,255,255,${isActive ? 0.95 : 0.7})`;
+        gCtx.textAlign = "center";
+        gCtx.fillText(`${data[idx].producer} (${data[idx].grape})`, n.x, n.y - r - 6);
+      }
+    }
+
+    gCtx.restore();
+  }
+
+  // Flat graph pointer events:
+  graphCanvas.addEventListener("pointerdown", e => {
+    if (e.button === 2) {
+      const idx = nodeAt(e.clientX, e.clientY);
+      if (idx >= 0) {
+        if (gLockedIdx === idx) {
+          gLockedIdx = -1; hideTooltip();
+        }
+        else {
+          gLockedIdx = idx;
+          showTooltip(data[idx], e.clientX, e.clientY);
+        }
+      } else {
+        gLockedIdx = -1;
+        hideTooltip();
+      }
+      return;
+    }
+
+    const idx = nodeAt(e.clientX, e.clientY);
+
+    if (gLockedIdx >= 0 && idx !== gLockedIdx) {
+      gLockedIdx = -1;
+      hideTooltip();
+    }
+
+    if (idx >= 0) {
+      gDragNode = idx;
+      graphCanvas.style.cursor = "grabbing";
+
+    } else {
+      gDragging = true;
+      gDragSX = e.clientX;
+      gDragSY = e.clientY;
+      gPanSX = gPanX;
+      gPanSY = gPanY;
+    }
+  });
+
+  graphCanvas.addEventListener("pointermove", e => {
+    if (gDragNode !== null) {
+      const [wx, wy] = s2w(e.clientX, e.clientY);
+      nodes[gDragNode].x = wx;
+      nodes[gDragNode].y = wy;
+      nodes[gDragNode].vx = nodes[gDragNode].vy = 0;
+
+    } else if (gDragging) {
+      gPanX = gPanSX + (e.clientX - gDragSX);
+      gPanY = gPanSY + (e.clientY - gDragSY);
+
+    } else {
+      gHoverIdx = nodeAt(e.clientX, e.clientY);
+      graphCanvas.style.cursor = gHoverIdx >= 0 ? "pointer" : "grab";
+    }
+  });
+
+  graphCanvas.addEventListener("pointerup", () => {
+    gDragging = false;
+    gDragNode = null;
+    graphCanvas.style.cursor = "grab";
+  });
+
+  graphCanvas.addEventListener("wheel", e => {
+    e.preventDefault();
+    const f = e.deltaY < 0 ? 1.1 : 0.9, old = gZoom;
+
+    gZoom = Math.max(0.15, Math.min(5, gZoom * f));
+    gPanX = e.clientX - (e.clientX - gPanX) * (gZoom / old);
+    gPanY = e.clientY - (e.clientY - gPanY) * (gZoom / old);
+
+  }, { passive: false });
+
+  // ============== > View switching:
+
+  let graphAnimId = null;
+
+  function resizeGraph() {
+    graphCanvas.width  = innerWidth  * devicePixelRatio;
+    graphCanvas.height = innerHeight * devicePixelRatio;
+    graphCanvas.style.width  = innerWidth  + "px";
+    graphCanvas.style.height = innerHeight + "px";
+  }
+
+  function startGraph() {
+    resizeGraph(); initNodePositions();
+    simTicks = 0;
+
+    for (let i = 0; i < 300; i++) simStep();
+    fitZoom();
+
+    (function loop() {
+      if (currentView !== "graph") return;
+      if (simTicks < 600) for (let i = 0; i < 2; i++) simStep();
+
+      drawGraph();
+      graphAnimId = requestAnimationFrame(loop);
+    })();
+  }
+
+  function stopGraph() {
+    if (graphAnimId) {
+      cancelAnimationFrame(graphAnimId);
+      graphAnimId = null;
+    }
+  }
+
+  function switchView(view) {
+    if (view === currentView) return;
+
+    currentView = view;
+    gLockedIdx = -1;
+    gHoverIdx = -1;
+
+    hideTooltip();
+
+    if (view === "graph") {
+      renderer.domElement.style.display = "none";
+      graphCanvas.style.display = "block";
+      btnSpin.style.display = "none";
+      startGraph();
+
+    } else {
+      stopGraph();
+      buildNeighborLines();
+
+      graphCanvas.style.display = "none";
+      renderer.domElement.style.display = "block";
+      btnSpin.style.display = "";
+    }
+  }
+
+  // ============== > Wire controls:
+
+  document.getElementById("color-by").addEventListener("change", e => applyColors(e.target.value));
+  document.getElementById("show-neighbors").addEventListener("change", e => {
+    showNeighbors = e.target.checked;
+    lineGroup.visible = e.target.checked;
+  });
+  document.getElementById("show-labels").addEventListener("change", e => {
+    showLabels = e.target.checked;
+    labelGroup.visible = e.target.checked;
+  });
+  document.getElementById("flatten-graph").addEventListener("change", e => switchView(e.target.checked ? "graph" : "cloud"));
+  document.getElementById("glow-top-grape").addEventListener("change", e => {
+    showTopGlow = e.target.checked;
+    glowPoints.visible = e.target.checked;
+  });
+
+  // ============== > Render loop:
 
   window.addEventListener("resize", () => {
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth, innerHeight);
+    if (currentView === "graph") {
+      resizeGraph();
+      fitZoom();
+    }
   });
 
   (function animate() {
     requestAnimationFrame(animate);
+    if (currentView !== "cloud") return;
     controls.update();
     renderer.render(scene, camera);
   })();
