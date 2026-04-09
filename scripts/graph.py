@@ -6,8 +6,8 @@ from sklearn.preprocessing import StandardScaler, MultiLabelBinarizer
 from sklearn.neighbors import NearestNeighbors
 import umap
 
-CSV_FILE = r"C:\Users\zvanh\Downloads\Classwork\25-26\Spring\HSPT-160\Final-Project\data\wines.csv"
-OUTPUT_FILE = r"C:\Users\zvanh\Downloads\Classwork\25-26\Spring\HSPT-160\Final-Project\data\wines_3d.json"
+CSV_FILE = "docs/wines.csv"
+OUTPUT_FILE = "docs/wines_3d.json"
 
 NUMERIC_FIELDS = [
     "alcohol", "price", "visible_depth", "smell_intensity",
