@@ -5,6 +5,8 @@ A 3D visualization of personal tasting notes. This project maps 70 wines tasted 
 > One important note is that there is no rhyme or reason to the 3 axes you can navigate. That is, each represents a compression of several dimensions at once.
 > Site at: [zythiq.github.io/wines-project/](https://zythiq.github.io/wines-project/)
 
+---
+
 ## How It Works
 
 Each wine is described by a mix of fields that get merged into a single high-dimensional feature vector:
@@ -14,11 +16,15 @@ Each wine is described by a mix of fields that get merged into a single high-dim
 - **4 one-hot categoricals:** Country, region, grape variety, and visual color.
 - **1 binary field:** Sparkling or not.
 
+---
+
 ### Dimensional Reduction
 
 The full feature matrix gets fed into **UMAP** (`umap-learn`) targeting 3 components with euclidean distance and `min_dist=0.1`. This is what positions wines in the scatter plot. Proximity is genuine taste/profile similarity, not just one field like grape or country.
 
 * A separate **k-nearest neighbors** pass (cosine similarity, `k=5`) records the 5 closest wines per point as neighbor edges, which get drawn as lines in the visualization.
+
+---
 
 ### Frontend
 
@@ -29,7 +35,9 @@ Two view modes, switchable via the *Flat view* toggle:
 - **Flat graph:** A **Canvas 2D** force-directed layout. Nodes initialize from the UMAP x/y coordinates and then run a repulsion + spring-attraction simulation. It's the same taste-space relationships as the cloud but flattened and spread out for easier reading. Node size even scales with how often that grape appears in the dataset.
   - Drag nodes to rearrange, scroll to zoom, and right-click any node to pin its tooltip.
 
-Points can be colored by country, grape, region, visual color (mapped to actual hex values like `#9b111e` for ruby), sparkling, price, body, acidity, tannins, dryness, or personal rating. Neighbor edges recolor to match whenever you switch the color-by scheme.
+Points can be colored by country, grape, region, visual color, sparkling, alcohol, price, body, acidity, tannins, dryness, warmth, length, or personal rating. Neighbor edges recolor to match whenever you switch the color-by scheme.
+
+---
 
 ## Specifics
 
