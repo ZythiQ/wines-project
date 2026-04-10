@@ -191,6 +191,37 @@
       font-size: 12px;
       color: #888;
     }
+    .right-ctrl-row input[type="checkbox"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      background: #1a1a24;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .right-ctrl-row input[type="checkbox"]:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .right-ctrl-row input[type="checkbox"]:checked {
+      background: #1a1a24;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .right-ctrl-row input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 3px;
+      height: 7px;
+      border: solid #ddd;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
 
     /* Flat graph canvas: */
     #graph-canvas {
