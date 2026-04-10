@@ -288,6 +288,59 @@
       cursor: grab;
     }
     #graph-canvas:active { cursor: grabbing; }
+
+    /* Light mode overrides */
+    body.light { background: #cccccf; color: #333; }
+    body.light #tooltip,
+    body.light #info-popup {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      color: #555;
+    }
+    body.light #tooltip .tt-header h3,
+    body.light #info-popup h4 { color: #111; }
+    body.light #tooltip .row { color: #666; }
+    body.light #tooltip .row span,
+    body.light #info-popup .row span { color: #222; }
+    body.light #tooltip .tag { background: rgba(0,0,0,0.08); color: #444; }
+    body.light #tooltip .divider,
+    body.light #info-popup .divider { border-color: rgba(0,0,0,0.1); }
+    body.light #hud h1 { color: #111; }
+    body.light a { color: #999; }
+    body.light a:hover { color: #555; }
+    body.light .hud-icon-btn { color: #999; }
+    body.light .hud-icon-btn.active { color: #111; }
+    body.light #info-btn { color: #111; }
+    body.light .right-ctrl-row { color: #555; }
+    body.light .right-ctrl-row input[type="checkbox"] {
+      background: #e0e0e0;
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+    body.light .right-ctrl-row input[type="checkbox"]:checked {
+      background: #e0e0e0;
+      border-color: rgba(0, 0, 0, 0.3);
+    }
+    body.light .right-ctrl-row input[type="checkbox"]:checked::after {
+      border-color: #333;
+    }
+    body.light .ctrl-row select {
+      background: #e0e0e0;
+      border-color: rgba(0, 0, 0, 0.15);
+      color: #333;
+      color-scheme: light;
+    }
+    body.light .ctrl-row select option { background: #e0e0e0; color: #333; }
+    body.light #hud .search-wrap input {
+      background: #e0e0e0;
+      border-color: rgba(0, 0, 0, 0.15);
+      color: #333;
+      color-scheme: light;
+    }
+    body.light #hud .search-wrap input::placeholder { color: #999; }
+    body.light #hud .search-wrap .search-ghost { color: #aaa; }
+    body.light #hud .search-wrap .search-count { color: #999; }
+    body.light #legend::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); }
   </style>
 </head>
 <body>
@@ -320,6 +373,19 @@
             </svg>
             <div id="info-popup"></div>
           </div>
+          <button class="hud-icon-btn" id="btn-theme" title="Toggle light/dark mode">
+            <svg viewBox="0 0 24 24" style="fill: #fff; stroke: #fff;">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </button>
           <button class="hud-icon-btn" id="btn-home" style="transform: translateY(-1px);">
             <svg viewBox="1 2 22 19">
               <path d="M12 2L1 12h4v9h5v-6h4v6h5v-9h4L12 2z" fill="#fff" stroke="none"/>
@@ -1359,6 +1425,40 @@
       infoPopup.innerHTML = INFO_CLOUD;
     }
   }
+
+  // ============== > Theme toggle:
+
+  let isDark = true;
+  const btnTheme = document.getElementById("btn-theme");
+  const sunHTML = btnTheme.innerHTML;
+  const moonHTML = `<svg viewBox="0 0 24 24" style="fill: #fff; stroke: #fff;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+
+  btnTheme.addEventListener("click", () => {
+    isDark = !isDark;
+    document.body.classList.toggle("light", !isDark);
+    btnTheme.innerHTML = isDark ? sunHTML : moonHTML;
+
+    const bgCSS = getComputedStyle(document.body).backgroundColor;
+    const [r, g, b] = bgCSS.match(/\d+/g).map(Number);
+    const bgHex = (r << 16) | (g << 8) | b;
+    
+    scene.background = new THREE.Color(bgHex);
+    scene.fog = new THREE.FogExp2(bgHex, 0.012);
+
+    const iconFill = isDark ? "#fff" : "#111";
+    const ghPath = document.querySelector("#left-panel .hud-btn-row a svg path");
+
+    if (ghPath) ghPath.setAttribute("fill", iconFill);
+    const homePath = document.querySelector("#btn-home svg path");
+
+    if (homePath) homePath.setAttribute("fill", iconFill);
+
+    const themeSvg = btnTheme.querySelector("svg");
+    if (themeSvg) {
+      themeSvg.style.fill = iconFill;
+      themeSvg.style.stroke = iconFill;
+    }
+  });
 
   const infoPopup = document.getElementById("info-popup");
   infoPopup.innerHTML = INFO_CLOUD;
