@@ -253,11 +253,14 @@
         <option value="region">Region</option>
         <option value="color">Wine Color</option>
         <option value="sparkling">Sparkling</option>
+        <option value="alcohol">Alcohol</option>
         <option value="price">Price</option>
         <option value="body">Body</option>
         <option value="acidity">Acidity</option>
         <option value="tannins">Tannins</option>
         <option value="dryness">Dryness</option>
+        <option value="warmth">Warmth</option>
+        <option value="length">Length</option>
         <option value="sentiment">My Rating</option>
       </select>
     </div>
@@ -644,9 +647,20 @@
         setPointColor(i, t, 1.0 - t, 0);
       });
       legend.innerHTML = legendItem(rgbCss([0, 1, 0]), `$${lo.toFixed(0)}`) +
-                        legendItem(rgbCss([1, 0, 0]), `$${hi.toFixed(0)}`);
+                         legendItem(rgbCss([1, 0, 0]), `$${hi.toFixed(0)}`);
 
-    } else if (["body", "acidity", "tannins", "dryness"].includes(field)) {
+    } else if (field === "alcohol") {
+      const alcohol = data.map(d => d.alcohol);
+      const lo = Math.min(...alcohol), hi = Math.max(...alcohol);
+
+      data.forEach((w, i) => {
+        const t = hi > lo ? (w.alcohol - lo) / (hi - lo) : 0.5;
+        setPointColor(i, t, 0.15, 1.0 - t);
+      });
+      legend.innerHTML = legendItem(rgbCss([0, 0.15, 1]), `${(lo * 100).toFixed(1)}%`) +
+                        legendItem(rgbCss([1, 0.15, 0]), `${(hi * 100).toFixed(1)}%`);
+
+    } else if (["body", "acidity", "tannins", "dryness", "length", "warmth"].includes(field)) {
       data.forEach((w, i) => setPointColor(i, w[field], 0.15, 1.0 - w[field]));
       legend.innerHTML = legendItem(rgbCss([0, 0.15, 1]), "Low") +
                          legendItem(rgbCss([1, 0.15, 0]), "High");
