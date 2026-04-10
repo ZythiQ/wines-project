@@ -8,6 +8,8 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #0a0a0f; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; color: #ccc; }
     canvas { display: block; }
+    a { font-size: 12px; color: #667; text-decoration: none; cursor: pointer; }
+    a:hover { color: #99a; text-decoration: underline; }
 
     /* Tooltip: */
     #tooltip {
@@ -70,13 +72,6 @@
     }
     #hud { margin-bottom: 8px; }
     #hud h1 { font-size: 20px; color: #fff; font-weight: 700; margin-bottom: 2px; }
-    #hud a {
-      font-size: 12px;
-      color: #667;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    #hud a:hover { color: #99a; text-decoration: underline; }
     #hud .hud-btn-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
     .hud-icon-btn {
       background: none;
@@ -102,12 +97,69 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
+
+    /* Search bar: */
+    #hud .search-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      margin-right: 4px;
+      margin-top: 8px;
+    }
+    #hud .search-wrap input {
+      background: #1a1a24;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px;
+      color: #ddd;
+      font-size: 12px;
+      font-family: inherit;
+      outline: none;
+      padding: 3px 36px 3px 8px;
+      width: 180px;
+      height: 20px;
+      color-scheme: dark;
+    }
+    #hud .search-wrap input::placeholder {
+      color: #667;
+    }
+    #hud .search-wrap input:hover,
+    #hud .search-wrap input:focus {
+      border-color: rgba(255,255,255,0.25);
+    }
+    #hud .search-wrap .search-ghost {
+      position: absolute;
+      left: 9px;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      color: #555;
+      pointer-events: none;
+      white-space: pre;
+      font-family: inherit;
+    }
+    #hud .search-wrap .search-count {
+      position: absolute;
+      right: 8px;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      font-size: 11px;
+      color: #667;
+      pointer-events: none;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Left controls: */
     .ctrl-row select {
       background: #1a1a24;
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 6px;
       color: #ddd;
       font-size: 12px;
+      height: 20px;
       cursor: pointer;
       outline: none;
       color-scheme: dark;
@@ -115,6 +167,7 @@
     }
     .ctrl-row select:hover { border-color: rgba(255,255,255,0.25); }
     .ctrl-row select option { background: #1a1a24; color: #ddd; }
+
     #legend {
       flex: 1;
       overflow-y: auto;
@@ -278,9 +331,14 @@
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
             </svg>
           </button>
+          <a id="wine-count" href="wines.csv" download="wines.csv" style="margin-left: 4px;"></a>
         </div>
       </div>
-      <a id="wine-count" href="wines.csv" download="wines.csv"></a>
+      <div class="search-wrap">
+        <input type="text" id="search-input" placeholder="Search wines…" autocomplete="off" spellcheck="false" />
+        <span class="search-ghost" id="search-ghost"></span>
+        <span class="search-count" id="search-count"></span>
+      </div>
     </div>
     <div class="ctrl-row">
       <select id="color-by">
@@ -365,6 +423,7 @@
   const EDGE_OPACITY = 0.15;
   const GLOW_OPACITY = 0.8;
   const GLOW_RADIUS_FACTOR = 2;
+  const DIM_OPACITY = 0.05;
 
   const RATING_ICONS = { "-2": "👎👎", "-1": "👎", "0": "", "1": "👍", "2": "👍👍" };
 
@@ -433,7 +492,7 @@
   // ============== > Load data:
 
   const data = await (await fetch("wines_3d.json")).json();
-  document.getElementById("wine-count").textContent = `${data.length} wines mapped`;
+  document.getElementById("wine-count").textContent = `${data.length} wines added`;
 
   const grapeCount = {};
   for (const w of data) grapeCount[w.grape] = (grapeCount[w.grape] || 0) + 1;
@@ -480,6 +539,81 @@
   let showLabels = false;
   let showTopGlow = false;
   let currentView = "cloud";
+
+  // ============== > Search / Fuzzy filter:
+
+  const SEARCH_KEYS = ["grape", "producer", "vintage", "country", "region"];
+
+  const searchFields = data.map(w =>
+    SEARCH_KEYS.map(k => String(w[k] || "").toLowerCase())
+  );
+
+  const allSearchTokens = [...new Set(
+    data.flatMap(w => SEARCH_KEYS.map(k => String(w[k] || "").toLowerCase()).filter(Boolean))
+  )].sort();
+
+  let searchQuery = "";
+  let searchMatchSet = null;
+
+  function findAutocomplete(query) {
+    if (!query) return null;
+    const q = query.toLowerCase();
+    return allSearchTokens.find(t => t.startsWith(q) && t.length > q.length) || null;
+  }
+
+  function updateSearch() {
+    const q = searchQuery.trim().toLowerCase();
+    searchCountEl.textContent = q ? String(searchMatchSet?.size ?? 0) : "";
+
+    for (let i = 0; i < data.length; i++) {
+      const a = (!searchMatchSet || searchMatchSet.has(i)) ? 1.0 : DIM_OPACITY;
+      const [r, g, b] = wineColors[i] || [0.5, 0.5, 0.5];
+      colors[i*3]   = srgbToLinear(r) * a;
+      colors[i*3+1] = srgbToLinear(g) * a;
+      colors[i*3+2] = srgbToLinear(b) * a;
+    }
+    geom.attributes.color.needsUpdate = true;
+    buildGlowPoints();
+    glowPoints.visible = showTopGlow || (searchMatchSet !== null && searchMatchSet.size > 0);
+  }
+
+  function runSearch(query) {
+    searchQuery = query;
+    const q = query.toLowerCase().trim();
+
+    if (!q) { searchMatchSet = null; }
+    else {
+      searchMatchSet = new Set();
+      for (let i = 0; i < data.length; i++)
+        if (searchFields[i].some(f => f.includes(q))) searchMatchSet.add(i);
+    }
+    updateSearch();
+  }
+
+  function updateGhostText() {
+    const val = searchInput.value;
+    const completion = val && findAutocomplete(val);
+    searchGhost.innerHTML = completion
+      ? `<span style="visibility:hidden">${val.replace(/</g,"&lt;")}</span>${completion.slice(val.length).replace(/</g,"&lt;")}`
+      : "";
+  }
+
+  const searchInput = document.getElementById("search-input");
+  const searchGhost = document.getElementById("search-ghost");
+  const searchCountEl = document.getElementById("search-count");
+
+  searchInput.addEventListener("input", () => { runSearch(searchInput.value); updateGhostText(); });
+
+  searchInput.addEventListener("keydown", e => {
+    e.stopPropagation();
+    if (e.key === "Tab") {
+      const completion = searchInput.value && findAutocomplete(searchInput.value);
+      if (completion) { e.preventDefault(); searchInput.value = completion; runSearch(completion); updateGhostText(); }
+    }
+    if (e.key === "Escape") { searchInput.value = ""; searchInput.blur(); runSearch(""); updateGhostText(); }
+  });
+  searchInput.addEventListener("keyup", e => e.stopPropagation());
+  searchInput.addEventListener("keypress", e => e.stopPropagation());
 
   // ============== > Scene setup:
 
@@ -593,14 +727,23 @@
     const glowPositions = [], glowColors = [];
 
     data.forEach((w, i) => {
-      if (!topGrapes.has(w.grape)) return;
+      const isTop = showTopGlow && topGrapes.has(w.grape);
+      const isSearchMatch = searchMatchSet !== null && searchMatchSet.has(i);
+
+      if (!isTop && !isSearchMatch) return;
+
       const [r, g, b] = wineColors[i] || [0.7, 0.98, 0.81];
+      
       glowPositions.push(...pos[i]);
       glowColors.push(r, g, b);
     });
 
-    glowPoints.geometry.setAttribute("position", new THREE.Float32BufferAttribute(glowPositions, 3));
-    glowPoints.geometry.setAttribute("color",    new THREE.Float32BufferAttribute(glowColors, 3));
+    glowPoints.geometry.dispose();
+    const newGeom = new THREE.BufferGeometry();
+
+    newGeom.setAttribute("position", new THREE.Float32BufferAttribute(glowPositions, 3));
+    newGeom.setAttribute("color", new THREE.Float32BufferAttribute(glowColors, 3));
+    glowPoints.geometry = newGeom;
   }
   buildGlowPoints();
 
@@ -664,10 +807,12 @@
   // ============== > Coloring:
 
   function setPointColor(i, r, g, b) {
+    const a = (!searchMatchSet || searchMatchSet.has(i)) ? 1.0 : DIM_OPACITY;
     wineColors[i] = [r, g, b];
-    colors[i*3]   = srgbToLinear(r);
-    colors[i*3+1] = srgbToLinear(g);
-    colors[i*3+2] = srgbToLinear(b);
+
+    colors[i*3]   = srgbToLinear(r) * a;
+    colors[i*3+1] = srgbToLinear(g) * a;
+    colors[i*3+2] = srgbToLinear(b) * a;
   }
 
   function applyColors(field) {
@@ -1022,10 +1167,26 @@
       const c = wineColors[idx] || [0.5, 0.5, 0.5];
       const isActive = idx === activeIdx;
       const isNbr = activeNbrs && activeNbrs.has(idx);
-      const alpha = (activeIdx >= 0 && !isActive && !isNbr) ? 0.15 : 0.9;
-      const r = isActive ? n.radius * 1.3 : n.radius;
 
-      if (showTopGlow && topGrapes.has(data[idx].grape)) {
+      let alpha;
+
+      if (searchMatchSet !== null) {
+        const searchAlpha = searchMatchSet.has(idx) ? 0.9 : DIM_OPACITY;
+
+        if (activeIdx >= 0 && !isActive && !isNbr) {
+          alpha = Math.min(searchAlpha, DIM_OPACITY);
+        } else {
+          alpha = searchAlpha;
+        }
+      } else {
+        alpha = (activeIdx >= 0 && !isActive && !isNbr) ? DIM_OPACITY : 0.9;
+      }
+
+      const r = isActive ? n.radius * 1.3 : n.radius;
+      const isTopGlow = showTopGlow && topGrapes.has(data[idx].grape);
+      const isSearchGlow = searchMatchSet !== null && searchMatchSet.has(idx);
+      
+      if (isTopGlow || isSearchGlow) {
         const [tgR, tgG, tgB] = c.map(v => v * 255 | 0);
         const gr = gCtx.createRadialGradient(n.x, n.y, r, n.x, n.y, r*GLOW_RADIUS_FACTOR);
 
