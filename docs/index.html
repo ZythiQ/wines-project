@@ -267,6 +267,11 @@
             </svg>
             <div id="info-popup"></div>
           </div>
+          <button class="hud-icon-btn" id="btn-home" style="transform: translateY(-1px);">
+            <svg viewBox="1 2 22 19">
+              <path d="M12 2L1 12h4v9h5v-6h4v6h5v-9h4L12 2z" fill="#fff" stroke="none"/>
+            </svg>
+          </button>
           <button class="hud-icon-btn active" id="btn-spin">
             <svg viewBox="0 0 24 24">
               <polyline points="23 4 23 10 17 10"/>
@@ -689,7 +694,7 @@
         setPointColor(i, t, 0.15, 1.0 - t);
       });
       legend.innerHTML = legendItem(rgbCss([0, 0.15, 1]), `${(lo * 100).toFixed(1)}%`) +
-                        legendItem(rgbCss([1, 0.15, 0]), `${(hi * 100).toFixed(1)}%`);
+                         legendItem(rgbCss([1, 0.15, 0]), `${(hi * 100).toFixed(1)}%`);
 
     } else if (["body", "acidity", "tannins", "dryness", "length", "warmth"].includes(field)) {
       data.forEach((w, i) => setPointColor(i, w[field], 0.15, 1.0 - w[field]));
@@ -849,6 +854,23 @@
   btnSpin.addEventListener("click", () => {
     controls.autoRotate = !controls.autoRotate;
     btnSpin.classList.toggle("active", controls.autoRotate);
+  });
+
+  // ============== > Home button:
+
+  const DEFAULT_CAM_POS = new THREE.Vector3(18, 0, 18);
+  const DEFAULT_CAM_UP  = new THREE.Vector3(0, 1, 0);
+
+  document.getElementById("btn-home").addEventListener("click", () => {
+    if (currentView === "cloud") {
+      camera.position.copy(DEFAULT_CAM_POS);
+      camera.up.copy(DEFAULT_CAM_UP);
+      controls.target.set(0, 0, 0);
+      controls.update();
+
+    } else {
+      fitZoom();
+    }
   });
 
   // ============== > Flat graph:
