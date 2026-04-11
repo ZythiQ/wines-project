@@ -1476,8 +1476,9 @@
   });
   document.getElementById("flatten-graph").addEventListener("change", e => switchView(e.target.checked ? "graph" : "cloud"));
   document.getElementById("glow-top-grape").addEventListener("change", e => {
-    showTopGlow = e.target.checked;
-    glowPoints.visible = e.target.checked;
+      showTopGlow = e.target.checked;
+      buildGlowPoints();
+      glowPoints.visible = showTopGlow || (searchMatchSet !== null && searchMatchSet.size > 0);
   });
 
   // ============== > Render loop:
