@@ -604,6 +604,7 @@
   let showNeighbors = true;
   let showLabels = false;
   let showTopGlow = false;
+  let isDark = true;
   let currentView = "cloud";
 
   // ============== > Search / Fuzzy filter:
@@ -632,15 +633,25 @@
     searchCountEl.textContent = q ? String(searchMatchSet?.size ?? 0) : "";
 
     for (let i = 0; i < data.length; i++) {
-      const a = (!searchMatchSet || searchMatchSet.has(i)) ? 1.0 : DIM_OPACITY;
+      const matched = !searchMatchSet || searchMatchSet.has(i);
+      const a = matched ? 1.0 : DIM_OPACITY;
       const [r, g, b] = wineColors[i] || [0.5, 0.5, 0.5];
-      colors[i*3]   = srgbToLinear(r) * a;
-      colors[i*3+1] = srgbToLinear(g) * a;
-      colors[i*3+2] = srgbToLinear(b) * a;
+
+      colors[i*3]   = r;
+      colors[i*3+1] = g;
+      colors[i*3+2] = b;
+      alphas[i] = a;
     }
     geom.attributes.color.needsUpdate = true;
+    geom.attributes.alpha.needsUpdate = true;
     buildGlowPoints();
     glowPoints.visible = showTopGlow || (searchMatchSet !== null && searchMatchSet.size > 0);
+
+    if (labelGroup.visible) {
+      labelGroup.children.forEach((sprite, i) => {
+        sprite.visible = !searchMatchSet || searchMatchSet.has(i);
+      });
+    }
   }
 
   function runSearch(query) {
@@ -752,6 +763,7 @@
   const geom = new THREE.BufferGeometry();
   const positions = new Float32Array(data.length * 3);
   const colors = new Float32Array(data.length * 3);
+  const alphas = new Float32Array(data.length).fill(1.0);
 
   pos.forEach(([x, y, z], i) => {
     positions[i*3] = x;
@@ -760,28 +772,67 @@
   });
   geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   geom.setAttribute("color",    new THREE.BufferAttribute(colors, 3));
+  geom.setAttribute("alpha",    new THREE.BufferAttribute(alphas, 1));
 
-  const sharedPointMatOpts = {
+  const pointMat = new THREE.ShaderMaterial({
+    uniforms: {
+      pointSize: { value: 0.6 },
+      map: { value: circleTexture },
+      scale: { value: window.innerHeight * 0.5 },
+      fogColor: { value: new THREE.Vector3(10/255, 10/255, 15/255) },
+      fogDensity: { value: scene.fog.density },
+    },
+    vertexShader: `
+      attribute float alpha;
+      varying vec3 vColor;
+      varying float vAlpha;
+      varying float vFogDepth;
+      uniform float pointSize;
+      uniform float scale;
+      void main() {
+        vColor = color;
+        vAlpha = alpha;
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+        vFogDepth = -mvPosition.z;
+        gl_PointSize = pointSize * scale / -mvPosition.z;
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    `,
+    fragmentShader: `
+      uniform sampler2D map;
+      uniform vec3 fogColor;
+      uniform float fogDensity;
+      varying vec3 vColor;
+      varying float vAlpha;
+      varying float vFogDepth;
+      void main() {
+        vec4 texColor = texture2D(map, gl_PointCoord);
+        if (texColor.a < 0.1) discard;
+        float fogFactor = exp(-fogDensity * fogDensity * vFogDepth * vFogDepth);
+        fogFactor = clamp(fogFactor, 0.0, 1.0);
+        vec3 color = mix(fogColor, vColor, fogFactor);
+        gl_FragColor = vec4(color, texColor.a * vAlpha * 0.9);
+      }
+    `,
     vertexColors: true,
-    sizeAttenuation: true,
     transparent: true,
-    map: circleTexture,
-    alphaMap: circleTexture,
     depthWrite: false,
-  };
+  });
 
-  const pointMat = new THREE.PointsMaterial({ ...sharedPointMatOpts, size: 0.6, opacity: 0.9 });
   const points = new THREE.Points(geom, pointMat);
   scene.add(points);
 
   // ============== > Glow layer:
 
   const glowMat = new THREE.PointsMaterial({
-    ...sharedPointMatOpts,
-    size: GLOW_RADIUS_FACTOR,
-    opacity: GLOW_OPACITY,
+    vertexColors: true,
+    sizeAttenuation: true,
+    transparent: true,
     map: glowTexture,
     alphaMap: glowTexture,
+    depthWrite: false,
+    size: GLOW_RADIUS_FACTOR,
+    opacity: GLOW_OPACITY,
     blending: THREE.AdditiveBlending,
   });
 
@@ -796,7 +847,12 @@
       const isTop = showTopGlow && topGrapes.has(w.grape);
       const isSearchMatch = searchMatchSet !== null && searchMatchSet.has(i);
 
-      if (!isTop && !isSearchMatch) return;
+      if (searchMatchSet !== null) {
+        if (!isSearchMatch) return;
+        if (!isTop && !isSearchMatch) return;
+      } else {
+        if (!isTop) return;
+      }
 
       const [r, g, b] = wineColors[i] || [0.7, 0.98, 0.81];
       
@@ -846,18 +902,20 @@
   const labelGroup = new THREE.Group();
   scene.add(labelGroup);
 
-  function makeLabel(text, position) {
+  function makeLabel(text, position, fillColor) {
     const cv = document.createElement("canvas");
     const ctx = cv.getContext("2d");
-    cv.width = 512
+
+    cv.width = 512;
     cv.height = 64;
     ctx.font = "bold 28px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.fillStyle = fillColor || "rgba(255,255,255,0.7)";
     ctx.fillText(text, 4, 42);
 
     const sprite = new THREE.Sprite(
       new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthWrite: false })
     );
+
     sprite.position.set(position[0], position[1] + 0.9, position[2]);
     sprite.scale.set(5, 0.65, 1);
     return sprite;
@@ -865,7 +923,8 @@
 
   function buildLabels() {
     clearGroup(labelGroup);
-    data.forEach((w, i) => labelGroup.add(makeLabel(`${w.producer} ${w.vintage}`, pos[i])));
+    const fillColor = isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)";
+    data.forEach((w, i) => labelGroup.add(makeLabel(`${w.producer} ${w.vintage}`, pos[i], fillColor)));
   }
   buildLabels();
   labelGroup.visible = false;
@@ -873,12 +932,13 @@
   // ============== > Coloring:
 
   function setPointColor(i, r, g, b) {
-    const a = (!searchMatchSet || searchMatchSet.has(i)) ? 1.0 : DIM_OPACITY;
+    const matched = !searchMatchSet || searchMatchSet.has(i);
     wineColors[i] = [r, g, b];
 
-    colors[i*3]   = srgbToLinear(r) * a;
-    colors[i*3+1] = srgbToLinear(g) * a;
-    colors[i*3+2] = srgbToLinear(b) * a;
+    colors[i*3]   = r;
+    colors[i*3+1] = g;
+    colors[i*3+2] = b;
+    alphas[i] = matched ? 1.0 : DIM_OPACITY;
   }
 
   function applyColors(field) {
@@ -952,6 +1012,7 @@
     }
 
     geom.attributes.color.needsUpdate = true;
+    geom.attributes.alpha.needsUpdate = true;
     buildNeighborLines();
     buildGlowPoints();
   }
@@ -994,6 +1055,10 @@
 
   function hideTooltip() { tooltip.style.display = "none"; }
 
+  function isNodeInteractive(idx) {
+    return !searchMatchSet || searchMatchSet.has(idx);
+  }
+
   // ============== > Cloud hover:
 
   const raycaster = new THREE.Raycaster();
@@ -1009,9 +1074,10 @@
     raycaster.setFromCamera(mouse, camera);
 
     const hits = raycaster.intersectObject(points);
+    const validHit = hits.find(h => isNodeInteractive(h.index));
 
-    if (hits.length) {
-      const idx = hits[0].index;
+    if (validHit) {
+      const idx = validHit.index;
       if (idx !== hoveredIdx) { hoveredIdx = idx; }
 
       showTooltip(data[idx], e.clientX, e.clientY);
@@ -1170,8 +1236,12 @@
 
   function nodeAt(sx, sy) {
     const [wx, wy] = s2w(sx, sy);
+
     for (let i = nodes.length-1; i >= 0; i--) {
+      if (!isNodeInteractive(i)) continue;
+
       const n = nodes[i], dx = n.x - wx, dy = n.y - wy;
+
       if (dx*dx + dy*dy < (n.radius+4)**2) return i;
     }
     return -1;
@@ -1228,6 +1298,9 @@
       }
     }
 
+    const labelFillActive = isDark ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.95)";
+    const labelFillNormal = isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)";
+
     for (let idx = 0; idx < nodes.length; idx++) {
       const n = nodes[idx];
       const c = wineColors[idx] || [0.5, 0.5, 0.5];
@@ -1252,7 +1325,10 @@
       const isTopGlow = showTopGlow && topGrapes.has(data[idx].grape);
       const isSearchGlow = searchMatchSet !== null && searchMatchSet.has(idx);
       
-      if (isTopGlow || isSearchGlow) {
+      const shouldGlow = isSearchGlow || (isTopGlow && !searchMatchSet);
+      const shouldGlowFinal = shouldGlow || (isTopGlow && isSearchGlow);
+
+      if (shouldGlowFinal) {
         const [tgR, tgG, tgB] = c.map(v => v * 255 | 0);
         const gr = gCtx.createRadialGradient(n.x, n.y, r, n.x, n.y, r*GLOW_RADIUS_FACTOR);
 
@@ -1269,9 +1345,11 @@
       gCtx.fillStyle = `rgba(${c[0]*255|0},${c[1]*255|0},${c[2]*255|0},${alpha})`;
       gCtx.fill();
 
-      if (showLabels || isActive || isNbr) {
+      const nodeMatchesSearch = !searchMatchSet || searchMatchSet.has(idx);
+
+      if ((showLabels && nodeMatchesSearch) || isActive || isNbr) {
         gCtx.font = `${isActive ? "bold " : ""}${isActive ? 11 : 9}px system-ui, sans-serif`;
-        gCtx.fillStyle = `rgba(255,255,255,${isActive ? 0.95 : 0.7})`;
+        gCtx.fillStyle = isActive ? labelFillActive : labelFillNormal;
         gCtx.textAlign = "center";
         gCtx.fillText(`${data[idx].producer} (${data[idx].grape})`, n.x, n.y - r - 6);
       }
@@ -1428,7 +1506,6 @@
 
   // ============== > Theme toggle:
 
-  let isDark = true;
   const btnTheme = document.getElementById("btn-theme");
   const sunHTML = btnTheme.innerHTML;
   const moonHTML = `<svg viewBox="0 0 24 24" style="fill: #fff; stroke: #fff;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
@@ -1445,6 +1522,9 @@
     scene.background = new THREE.Color(bgHex);
     scene.fog = new THREE.FogExp2(bgHex, 0.012);
 
+    pointMat.uniforms.fogColor.value.set(r / 255, g / 255, b / 255);
+    pointMat.uniforms.fogDensity.value = scene.fog.density;
+
     const iconFill = isDark ? "#fff" : "#111";
     const ghPath = document.querySelector("#left-panel .hud-btn-row a svg path");
 
@@ -1458,6 +1538,9 @@
       themeSvg.style.fill = iconFill;
       themeSvg.style.stroke = iconFill;
     }
+
+    buildLabels();
+    labelGroup.visible = showLabels;
   });
 
   const infoPopup = document.getElementById("info-popup");
@@ -1473,6 +1556,11 @@
   document.getElementById("show-labels").addEventListener("change", e => {
     showLabels = e.target.checked;
     labelGroup.visible = e.target.checked;
+    if (e.target.checked) {
+      labelGroup.children.forEach((sprite, i) => {
+        sprite.visible = !searchMatchSet || searchMatchSet.has(i);
+      });
+    }
   });
   document.getElementById("flatten-graph").addEventListener("change", e => switchView(e.target.checked ? "graph" : "cloud"));
   document.getElementById("glow-top-grape").addEventListener("change", e => {
@@ -1487,6 +1575,8 @@
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth, innerHeight);
+    pointMat.uniforms.scale.value = window.innerHeight * 0.5;
+
     if (currentView === "graph") {
       resizeGraph();
       fitZoom();
