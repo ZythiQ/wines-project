@@ -10,7 +10,7 @@ except ImportError:
     HAS_PT = False
 
 
-CSV_FILE = r"C:\Users\zvanh\Downloads\Classwork\25-26\Spring\HSPT-160\Final-Project\data\wines.csv"
+CSV_FILE = r"C:\Users\zvanh\Downloads\Classwork\25-26\Spring\HSPT-160\wines-project\docs\wines.csv"
 
 FIELDS = [
     "country", "region", "grape", "producer", "vintage",
