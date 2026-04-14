@@ -512,9 +512,10 @@
     "gold": "#d4a017", "amber": "#cf8a20", "pink": "#f4a6b0",
     "pale salmon": "#f0b8a8", "salmon": "#e88771", "copper": "#c07040",
     "pale ruby": "#c45070", "ruby": "#9b111e", "deep ruby": "#6b0a0e",
-    "garnet": "#733635", "ashy garnet": "#612d2d", "purple": "#5c2058",
-    "deep purple": "#3a0e40", "brick red": "#8b4513", "blood red": "#880000",
-    "maroon red": "#6c1f1f", "red": "#c0392b", "tawny": "#a05030", "brown": "#5c3317",
+    "garnet": "#733635", "ashy garnet": "#612d2d", "ruby garnet": "#612d2d",
+    "purple": "#5c2058", "deep purple": "#3a0e40", "brick red": "#8b4513",
+    "blood red": "#880000", "maroon red": "#6c1f1f", "red": "#c0392b",
+    "tawny": "#a05030", "brown": "#5c3317", "plum": "#520d2e",
   };
 
   const CATEGORICAL_PALETTE = [
@@ -566,6 +567,8 @@
 
   function findTopGrapes(wines) {
     const stats = {};
+    let globalSum = 0;
+    let globalCount = 0;
 
     for (const w of wines) {
       if (!stats[w.grape]) stats[w.grape] = { sum: 0, count: 0 };
@@ -573,14 +576,25 @@
       stats[w.grape].count++;
     }
 
-    let maxAvg = -Infinity;
-
+    // Global prior:
     for (const g in stats) {
-      stats[g].avg = stats[g].sum / stats[g].count;
-      if (stats[g].avg > maxAvg) maxAvg = stats[g].avg;
+      globalSum += stats[g].sum;
+      globalCount += stats[g].count;
     }
 
-    return new Set(Object.keys(stats).filter(g => stats[g].avg === maxAvg));
+    // Bayesian average:
+    let maxScore = -Infinity;
+    const scores = {};
+    const m = 3;
+
+    for (const g in stats) {
+      const { sum, count } = stats[g];
+
+      scores[g] = (sum + m * (globalSum / globalCount)) / (count + m);
+
+      if (scores[g] > maxScore) maxScore = scores[g];
+    }
+    return new Set(Object.keys(scores).filter(g => scores[g] === maxScore));
   }
 
   const topGrapes = findTopGrapes(data);

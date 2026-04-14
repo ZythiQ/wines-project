@@ -37,9 +37,15 @@ South Africa,Western Cape,Chenin Blanc,Indaba,2023,0.13,10.0,0.2,pale straw,0,fl
 South Africa,Western Cape,Chenin Blanc,Man Steen,2023,0.135,8.5,0.2,pale straw,0,damp clothes|green apple|honey|pear|salt|stone|waxy leaf,0.6,beach|floral|green apple|mineral|pear,0.6,0.8,0.0,0.4,0.8,0.6,0.4,2
 South Africa,Western Cape,Sauvignon Blanc,Mulderbosch,2022,0.13,13.0,0.2,pale straw,0,clay|crab apple|honeysuckle|nut|tropical,0.8,citrus|nutty cheese,0.8,1.0,0.0,0.4,1.0,0.6,0.4,1
 South Africa,Robertson,Pinotage,Robertson,2022,0.125,9.5,0.8,ruby,0,bbq|berry|charcoal|earth|plum|smoke,0.7,bbq|berry|blackberry|charcoal|earth|plum|smoke,0.7,0.6,0.6,0.8,1.0,0.6,0.8,1
+Spain,Catalonia,Red Blend,Freixenet Cordon,NV,0.115,11.0,0.8,ruby,0,grape|grapefruit|pear|spice|stone,0.6,cheese rind|grapefruit|pear,0.6,0.6,0.4,0.6,0.8,0.6,0.6,1
+Spain,Jerez,Sherry Palomino,"Lustau ""Los Arcos""",NV,0.185,17.0,0.2,amber,0,malt|soysauce|mirin|shaoxing|orange|vanilla,1.0,nut|caramel|malt berry|lemon,0.8,0.8,0.2,0.6,0.8,1.0,1.0,-2
+Spain,Ribera del Duero,Tempranillo,Condado de Haza Crianza,2020,0.145,22.0,0.8,ruby,0,salt|hickory|maple|bacon|smoke|red berry|spice|vanilla,1.0,dark chocolate|red berry|spice|vanilla,0.6,0.6,0.8,0.8,1.0,0.8,0.8,2
 Spain,Rioja,Tempranillo,Campo Viejo,2018,0.135,13.5,0.8,ashy garnet,0,oak|malted berry|plum|red fruit|spice|smoke,0.6,red fruit|oak|tabacco,0.4,0.8,0.4,0.4,1.0,0.4,0.6,1
 Spain,Rioja,Tempranillo,Campo Viejo,2022,0.135,10.0,0.8,ruby,0,oak|plum|red fruit|spice|vanilla,0.8,cocoa|oak|red fruit|spice|tabacco|vanilla,0.6,0.6,0.4,0.6,1.0,0.8,0.6,2
-Spain,Catalonia,Red Blend,Freixenet Cordon,NV,0.115,11.0,0.8,ruby,0,grape|grapefruit|pear|spice|stone,0.6,cheese rind|grapefruit|pear,0.6,0.6,0.4,0.6,0.8,0.6,0.6,1
+Spain,Rioja,Tempranillo,Hacienda Lopez de Haro Reserva,2019,0.145,15.0,0.8,ruby garnet,0,red berry|spice|leather|tabacco|oak|chocolate|marmalade|dirt,0.8,red berry|orange|spice|heady|smoke|tabacco,0.6,0.6,0.8,0.6,1.0,0.8,0.6,2
+Portugal,Alentejano,Red Blend,Ciconia,2021,0.135,8.0,1.0,ruby,0,salt|wild berry|strawberry|charred wood|smoke|tabacco,0.8,cake|fruit|leather|spice|heady|mellow,0.6,0.6,0.6,0.6,0.8,1.0,0.8,1
+Portugal,Douro Valley,Port Blend,Graham's Six Grapes,NV,0.195,25.0,1.0,plum,0,heady|cherry|chocolate|fruit|fall leaves,1.0,confectionary fruit|heady|spice,0.8,0.6,0.8,1.0,0.2,1.0,1.0,0
+Portugal,"Vinho Verde, Minho",White Blend,Aveledas Casal Garcia,NV,0.095,8.5,0.2,pale straw,0,waxy apple|apple|lime|mineral|fresh,0.8,green apple|lime|white fruit,0.8,0.8,0.0,0.4,0.8,0.4,0.2,1
 United States,New York,Rose,Airy Acres,2024,0.12,25.0,0.4,pink,0,cheese|floral|stone fruit|strawberry|waterfall,0.7,citrus|melon|rind|water,0.7,0.8,0.2,0.4,1.0,0.6,0.4,1
 United States,California,Moscato,Barefoot,NV,0.09,6.5,0.2,pale straw,1,citrus|floral|grapefruit|pinesol,0.6,grape|honey|peach,0.6,0.6,0.0,0.4,0.2,0.4,0.2,0
 United States,New York,White Blend,Billy Hill Love My Goat,NV,0.11,8.5,0.2,pale straw,0,floral|green apple|kerosene|wheat|wheat,0.6,citrus|green apple|pear|sweet,0.6,0.8,0.0,0.4,0.6,0.6,0.4,0
