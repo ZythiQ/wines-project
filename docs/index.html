@@ -458,7 +458,7 @@
 
   <script type="module">
   import * as THREE from "three";
-  import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+  import { TrackballControls } from "three/addons/controls/TrackballControls.js";
 
   // ============== > Helpers:
 
@@ -538,8 +538,8 @@
     <div class="row"><span>Left-click drag</span> to orbit the cloud.</div>
     <div class="row"><span>Right-click drag</span> to pan the cloud.</div>
     <div class="divider"></div>
-    <div class="row"><span>Shft + drag</span> to flip mouse controls.</div>
-    <div class="row"><span>Ctrl + drag</span> to roll the camera.</div>
+    <div class="row"><span>Ctrl-click drag</span> to barrel-roll.</div>
+    <div class="row"><span>Middle-click drag</span> to zoom.</div>
     <div class="divider"></div>
     <div class="row"><span>Hover</span> a wine to see details.</div>
     <div class="row"><span>Scroll</span> to zoom in and out.</div>
@@ -726,11 +726,20 @@
   renderer.setPixelRatio(devicePixelRatio);
   document.body.appendChild(renderer.domElement);
 
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.06;
-  controls.autoRotate = true;
-  controls.autoRotateSpeed = 0.3;
+  const controls = new TrackballControls(camera, renderer.domElement);
+  controls.rotateSpeed = 2.5;
+  controls.zoomSpeed = 0.5;
+  controls.panSpeed = 0.1;
+  controls.noZoom = false;
+  controls.noPan = false;
+  controls.staticMoving = false;
+  controls.dynamicDampingFactor = 0.06;
+
+  controls.minDistance = 2;
+  controls.maxDistance = 80;
+
+  let autoRotate = true;
+  const autoRotateSpeed = 0.35;
 
   scene.add(new THREE.AmbientLight(0xffffff, 0.5));
   const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
@@ -794,11 +803,12 @@
   geom.setAttribute("color",    new THREE.BufferAttribute(colors, 3));
   geom.setAttribute("alpha",    new THREE.BufferAttribute(alphas, 1));
 
+  // ============== > FIX 2: Normalize scale by devicePixelRatio
   const pointMat = new THREE.ShaderMaterial({
     uniforms: {
       pointSize: { value: 0.6 },
       map: { value: circleTexture },
-      scale: { value: window.innerHeight * 0.5 },
+      scale: { value: window.innerHeight * 0.5 / devicePixelRatio },
       fogColor: { value: new THREE.Vector3(10/255, 10/255, 15/255) },
       fogDensity: { value: scene.fog.density },
     },
@@ -1124,41 +1134,56 @@
 
   renderer.domElement.addEventListener("pointerdown", e => {
     if (e.button === 2) return;
-    controls.autoRotate = false;
+    autoRotate = false;
     btnSpin.classList.remove("active");
   });
+
+  btnSpin.addEventListener("click", () => {
+    autoRotate = !autoRotate;
+    btnSpin.classList.toggle("active", autoRotate);
+  });
+
+  // ============== > Ctrl+drag barrel roll:
 
   let isRolling = false, rollStartX = 0;
 
   renderer.domElement.addEventListener("pointerdown", e => {
-    if (e.ctrlKey || e.metaKey) {
+    if ((e.ctrlKey || e.metaKey) && e.button === 0) {
       isRolling = true;
       rollStartX = e.clientX;
       controls.enabled = false;
+      e.stopPropagation();
       e.preventDefault();
     }
-  });
+  }, true);
 
   window.addEventListener("pointermove", e => {
     if (!isRolling) return;
+    e.preventDefault();
     const dx = e.clientX - rollStartX;
-
     rollStartX = e.clientX;
 
-    const axis = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
+    const axis = new THREE.Vector3(0, 0, -1)
+      .applyQuaternion(camera.quaternion)
+      .normalize();
     camera.up.applyAxisAngle(axis, dx * -0.005);
   });
 
-  window.addEventListener("pointerup", () => {
+  window.addEventListener("pointerup", e => {
     if (isRolling) {
       isRolling = false;
+
+      const camPos = camera.position.clone();
+      const camUp = camera.up.clone();
+      const tgt = controls.target.clone();
+
+      controls.reset();
+
+      camera.position.copy(camPos);
+      camera.up.copy(camUp);
+      controls.target.copy(tgt);
       controls.enabled = true;
     }
-  });
-
-  btnSpin.addEventListener("click", () => {
-    controls.autoRotate = !controls.autoRotate;
-    btnSpin.classList.toggle("active", controls.autoRotate);
   });
 
   // ============== > Home button:
@@ -1603,7 +1628,9 @@
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth, innerHeight);
-    pointMat.uniforms.scale.value = window.innerHeight * 0.5;
+    // FIX 2: Normalize on resize too
+    pointMat.uniforms.scale.value = window.innerHeight * 0.5 / devicePixelRatio;
+    controls.handleResize();
 
     if (currentView === "graph") {
       resizeGraph();
@@ -1614,6 +1641,15 @@
   (function animate() {
     requestAnimationFrame(animate);
     if (currentView !== "cloud") return;
+
+    if (autoRotate) {
+      const angle = autoRotateSpeed * 0.002;
+      const offset = camera.position.clone().sub(controls.target);
+      const quat = new THREE.Quaternion().setFromAxisAngle(camera.up, angle);
+      offset.applyQuaternion(quat);
+      camera.position.copy(controls.target).add(offset);
+    }
+
     controls.update();
     renderer.render(scene, camera);
   })();
