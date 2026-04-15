@@ -15,7 +15,7 @@ NUMERIC_FIELDS = [
     "dryness", "length", "warmth", "rating"
 ]
 
-BINARY_FIELDS = ["sparkling"]
+BINARY_FIELDS = ["sparkling", "fortified"]
 
 CATEGORICAL_FIELDS = ["country", "region", "grape", "color"]
 
@@ -120,6 +120,7 @@ def export(wines, coords, neighbors):
             "visible_depth":    safe_float(w.get("visible_depth", "")),
             "color":            w.get("color", ""),
             "sparkling":        safe_int(w.get("sparkling", "0")),
+            "fortified":        safe_int(w.get("fortified", "0")),
             "smells":           [s for s in w.get("smells", "").split("|") if s],
             "smell_intensity":  safe_float(w.get("smell_intensity", "")),
             "flavors":          [f for f in w.get("flavors", "").split("|") if f],

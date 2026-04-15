@@ -1,79 +1,79 @@
-country,region,grape,producer,vintage,alcohol,price,visible_depth,color,sparkling,smells,smell_intensity,flavors,flavor_intensity,acidity,tannins,body,dryness,length,warmth,rating
-Argentina,Mendoza,Malbec,Alamos,2023,0.135,10.0,1.0,deep ruby,0,black pepper|caramel|currant|oak|plum|steak sauce,0.8,black pepper|cherry|lemon grass|smoke,0.8,0.6,0.6,1.0,1.0,0.8,0.8,1
-Argentina,Salta,Torrontes,Torino Cuma,2023,0.135,11.0,0.2,pale straw,0,citrus|floral|honeysuckle|manderine|orange|wet stone,0.8,candle smoke|lemon|orange|sour blueberry,0.8,0.8,0.0,0.4,0.8,0.6,0.4,2
-Australia,South Eastern Australia,Shiraz,19 Crimes,NV,0.135,9.5,1.0,deep ruby,0,cherry|dates|oak|tootsie pop|vanilla|wet earth,0.7,grape|plum|steak,0.7,0.6,0.6,1.0,0.8,0.8,0.8,0
-Australia,Alpine Valleys,Riesling,Frisk,NV,0.1,10.0,0.2,pale straw,1,floral|lime sorbet|mineral|nectarine|peach,0.6,citrus|honeydew|lime|nectarine|peach,0.6,1.0,0.0,0.2,0.4,0.6,0.2,0
-Australia,Yarra Valley,Pinot Noir,Innocent Bystander,2022,0.14,25.0,0.6,ruby,0,apple|cherry|chocolate|earth|tomato,0.7,crab apple|red cherry|spice,0.7,0.8,0.4,0.6,1.0,0.8,0.6,1
-Australia,McLaren Vale,Red Blend,Paxton AAA,2022,0.143,20.0,0.8,ruby,0,carrot cake|cherry|herb|plum|steak|tomato,0.7,apple skin|marinade|plum,0.7,0.6,0.6,0.8,1.0,0.8,0.8,2
-Australia,South Eastern Australia,Chardonnay,Yellow Tail,2024,0.13,6.0,0.4,golden,0,dust|lemon meringue|rubber chips,0.6,banana pudding|lemon|spice|vanilla,0.6,0.6,0.0,0.6,0.8,0.6,0.6,0
-Austria,Kamptal,Riesling,Brundlmayer Terrassen,2023,0.13,30.0,0.2,pale straw,0,apple|cheese|citrus|mineral|wet stone,0.8,apple|cheese rind|lemon|mineral|squash,0.8,1.0,0.0,0.4,1.0,0.8,0.4,2
-Chile,Central Valley,Carmenere,Concha Y Toro Casillero Del Diablo Reserva,2023,0.135,8.0,0.8,ruby,0,bell pepper|charred meat|plum|red pepper flakes,0.7,chocolate|green apple|pepper|smoke,0.7,0.6,0.6,0.8,1.0,0.6,0.6,1
-Chile,Central Valley,Sauvignon Blanc,Veramonte,2022,0.135,10.0,0.2,pale straw,0,apple|citrus|floral|wet stone,0.7,grape|green apple|lemon|lime,0.7,1.0,0.0,0.4,1.0,0.6,0.4,1
-France,Bordeaux,Red Blend,Chateau D'Armailhac,2021,0.13,80.0,1.0,deep ruby,0,apple|blackcurrant|cedar|cigar box|meat|roast bell pepper|smoke,0.9,apple|blackcurrant|cedar|cigar box|meat|roast bell pepper|smoke,0.9,0.6,0.8,1.0,1.0,1.0,0.8,2
-France,Bordeaux,White Blend,Chateau Gravyville-Lacoste,2023,0.12,17.0,0.2,pale straw,0,bell pepper|cheese|citrus|green apple|lemon grass|sugar cookie,0.7,cheese rind|coca-cola|honey|lemon|lime|wine,0.7,1.0,0.0,0.4,1.0,0.8,0.4,2
-France,Bordeaux,Red Blend,Chateau Haut-Brisson Grand Cru,2021,0.14,28.0,1.0,deep ruby,0,apple|black pepper|blackcurrant|meat|oak|plum|tabacco,0.8,apple|black pepper|blackcurrant|meat|oak|plum|tabacco,0.8,0.6,0.8,1.0,1.0,1.0,0.8,1
-France,Alsace,Pinot Gris,Hugel,2022,0.145,25.0,0.4,golden straw,0,airy citrus|lemon|pear|wood,0.6,apple|citrus|pear,0.6,0.6,0.0,0.6,0.8,0.6,0.6,1
-France,Burgundy,Pinot Noir,Joseph Drouhin,2022,0.135,26.0,0.6,ruby,0,cranberry|disinfectant|leather|strawberry,0.7,red cherry|sour plum,0.7,0.8,0.4,0.6,1.0,0.8,0.6,1
-France,Burgundy,Chardonnay,Louis Jadot,2022,0.125,24.0,0.2,pale straw,0,alfredo|carrot|cheese|orange|pear|wet stone,0.7,butter|cheese rind|green apple|lemon|salt,0.7,1.0,0.0,0.6,1.0,0.8,0.4,2
-France,Burgundy,Pinot Noir,Louis Latour,2022,0.13,35.0,0.6,ruby,0,blackberry|butter|lemon|michelada|salt|string cheese,0.7,chalk|chocolate|sour strawberry,0.7,0.8,0.4,0.6,1.0,0.8,0.6,1
-France,Champagne,White Blend,Moet Et Chandon Imperial Brut,NV,0.125,80.0,0.2,pale straw,1,burnt date|flour|tamarind candy|toast,0.8,brioche|malt date|sweet,0.8,1.0,0.0,0.6,1.0,1.0,0.6,-1
-France,Alsace,Riesling,Trimbach,2022,0.125,16.0,0.2,pale straw,0,floral|kerosene|mineral|orange|perfume,0.8,apricot|leather|lemon|lime|mineral|orange,0.8,1.0,0.0,0.4,1.0,0.8,0.4,0
-Germany,Rheinhessen,Riesling,Blue Nun 24k Gold,NV,0.11,14.0,0.2,pale straw,1,apple|apricot|cheese rind|citrus|disinfectant|floral|water,0.6,apricot|cheese|citrus|honey|sweet,0.6,0.8,0.0,0.4,0.6,0.6,0.4,1
-Germany,Mosel,Riesling,Dr Loosen Kabinett,2022,0.08,28.0,0.2,pale straw,0,bitter rind|floral|kerosene|leather|sweet apple,0.8,apple|creamy|honey|lemon|synthetic,0.8,1.0,0.0,0.4,0.6,0.6,0.2,0
-Germany,Mosel,Riesling,Dr Loosen Spatlese,2022,0.08,32.0,0.2,pale straw,0,floral|honey|kiwi|leather|sweet apple,0.8,apple|citrus|grape|honey|lemon,0.8,0.8,0.0,0.6,0.4,0.8,0.2,2
-Germany,Mosel,Riesling,Schmitt-Sohne Relax,2023,0.09,10.0,0.2,pale straw,0,apple|floral|honeysuckle|peach,0.6,apple|honey|lemon|lime|sweet,0.6,0.8,0.0,0.4,0.6,0.6,0.2,1
-Italy,Veneto,White Blend,Cantine,2023,0.14,10.0,0.2,pale straw,0,cherry tomato|citrus|dirt|red fruit|tabacco|tomato vine,0.6,coffee cake|earth|fruit|strawberry,0.6,0.8,0.0,0.4,0.8,0.6,0.4,2
-Italy,Sicily,Nero D'Avola,Cusumano,2021,0.135,11.5,0.8,ruby,0,berry|craisin|plum|tomato vine,0.7,citrus rind|heady|raspberry|red fruit,0.7,0.6,0.6,0.8,1.0,0.6,0.8,1
-Italy,Tuscany,Sangiovese Blend,Da Vinci,2023,0.135,12.0,0.8,ruby,0,cherry|cigar box|expo-marker|plum|red berry|steak sauce,0.7,bitter|fruit skin|wood,0.4,0.8,0.6,0.8,1.0,0.8,0.6,1
-Italy,Piedmont,Asti,Mondoro Spumante,NV,0.075,14.0,0.2,pale straw,1,caramel|floral|grape|imperial/belgian beer|peach,0.8,|apple cider vinegar|honey|malt berry|peach|yogurt,0.8,0.6,0.0,0.4,0.2,0.4,0.2,1
-Italy,Emilia-Romagna,Lambrusco,Riunite,NV,0.08,7.5,0.6,ruby,1,apple|cranberry juice|jam,0.6,candy|fruit juice|grape|strawberry|sweet,0.6,0.6,0.2,0.4,0.2,0.4,0.2,1
-Italy,Tuscany,Red Blend,Ruffino Modus,2021,0.15,26.0,0.8,blood red,0,apple|berry|heady|smoke|spice|wet wood,0.8,apple|blackberry|butter|caramel|spice|sweet,0.8,0.6,0.6,0.8,1.0,0.8,0.8,2
-Italy,Piedmont,Nebbiolo,Silvio Grasso,2019,0.145,33.0,0.8,brick red,0,basil|nail polish|prune|rose|vanilla,0.8,cake|orange|spice,0.8,0.8,0.8,0.8,1.0,1.0,0.8,1
-Italy,Venezie,Pinot Grigio,Voga,2022,0.12,11.0,0.2,pale straw,0,almond|apple|citrus|honeysuckle|mineral|orange|pear,0.6,apple|honey|lemon|pear|yogurt,0.6,0.8,0.0,0.4,1.0,0.6,0.4,1
-New Zealand,Marlborough,Sauvignon Blanc,Kim Crawford,2024,0.14,14.0,0.2,pale straw,0,apple|citrus|grass|herb|tropical,0.9,fresh|lemon|lime|orange,0.9,1.0,0.0,0.4,1.0,0.8,0.4,2
-New Zealand,Hawkes Bay,Chardonnay,Te Mata,2022,0.13,24.0,0.4,golden,0,citrus|oak|smoke|urine,0.7,lemon|oak|stone fruit|yogurt,0.7,0.8,0.0,0.8,0.8,0.8,0.6,0
-South Africa,Cape Coast,Chenin Blanc,Man Family Wines,2025,0.13,8.99,0.2,pale straw,0,green apple|stem|tomato vine|spice|roast red pepper|dirt,0.8,green apple|spice|pepper|floral,0.8,0.8,0.0,0.4,1.0,1.0,0.4,1
-South Africa,Western Cape,Chenin Blanc,Indaba,2023,0.13,10.0,0.2,pale straw,0,floral|green apple|honey|pear|quince,0.6,apple|citrus|earth|pear|spice|tropical fruit,0.6,0.8,0.0,0.4,1.0,0.8,0.4,2
-South Africa,Western Cape,Chenin Blanc,Man Steen,2023,0.135,8.5,0.2,pale straw,0,damp clothes|green apple|honey|pear|salt|stone|waxy leaf,0.6,beach|floral|green apple|mineral|pear,0.6,0.8,0.0,0.4,0.8,0.6,0.4,2
-South Africa,Western Cape,Sauvignon Blanc,Mulderbosch,2022,0.13,13.0,0.2,pale straw,0,clay|crab apple|honeysuckle|nut|tropical,0.8,citrus|nutty cheese,0.8,1.0,0.0,0.4,1.0,0.6,0.4,1
-South Africa,Robertson,Pinotage,Robertson,2022,0.125,9.5,0.8,ruby,0,bbq|berry|charcoal|earth|plum|smoke,0.7,bbq|berry|blackberry|charcoal|earth|plum|smoke,0.7,0.6,0.6,0.8,1.0,0.6,0.8,1
-Spain,Catalonia,Red Blend,Freixenet Cordon,NV,0.115,11.0,0.8,ruby,0,grape|grapefruit|pear|spice|stone,0.6,cheese rind|grapefruit|pear,0.6,0.6,0.4,0.6,0.8,0.6,0.6,1
-Spain,Jerez,Sherry Palomino,"Lustau ""Los Arcos""",NV,0.185,17.0,0.2,amber,0,malt|soysauce|mirin|shaoxing|orange|vanilla,1.0,nut|caramel|malt berry|lemon,0.8,0.8,0.2,0.6,0.8,1.0,1.0,-2
-Spain,Ribera del Duero,Tempranillo,Condado de Haza Crianza,2020,0.145,22.0,0.8,ruby,0,salt|hickory|maple|bacon|smoke|red berry|spice|vanilla,1.0,dark chocolate|red berry|spice|vanilla,0.6,0.6,0.8,0.8,1.0,0.8,0.8,2
-Spain,Rioja,Tempranillo,Campo Viejo,2018,0.135,13.5,0.8,ashy garnet,0,oak|malted berry|plum|red fruit|spice|smoke,0.6,red fruit|oak|tabacco,0.4,0.8,0.4,0.4,1.0,0.4,0.6,1
-Spain,Rioja,Tempranillo,Campo Viejo,2022,0.135,10.0,0.8,ruby,0,oak|plum|red fruit|spice|vanilla,0.8,cocoa|oak|red fruit|spice|tabacco|vanilla,0.6,0.6,0.4,0.6,1.0,0.8,0.6,2
-Spain,Rioja,Tempranillo,Hacienda Lopez de Haro Reserva,2019,0.145,15.0,0.8,ruby garnet,0,red berry|spice|leather|tabacco|oak|chocolate|marmalade|dirt,0.8,red berry|orange|spice|heady|smoke|tabacco,0.6,0.6,0.8,0.6,1.0,0.8,0.6,2
-Portugal,Alentejano,Red Blend,Ciconia,2021,0.135,8.0,1.0,ruby,0,salt|wild berry|strawberry|charred wood|smoke|tabacco,0.8,cake|fruit|leather|spice|heady|mellow,0.6,0.6,0.6,0.6,0.8,1.0,0.8,1
-Portugal,Douro Valley,Port Blend,Graham's Six Grapes,NV,0.195,25.0,1.0,plum,0,heady|cherry|chocolate|fruit|fall leaves,1.0,confectionary fruit|heady|spice,0.8,0.6,0.8,1.0,0.2,1.0,1.0,0
-Portugal,"Vinho Verde, Minho",White Blend,Aveledas Casal Garcia,NV,0.095,8.5,0.2,pale straw,0,waxy apple|apple|lime|mineral|fresh,0.8,green apple|lime|white fruit,0.8,0.8,0.0,0.4,0.8,0.4,0.2,1
-United States,New York,Rose,Airy Acres,2024,0.12,25.0,0.4,pink,0,cheese|floral|stone fruit|strawberry|waterfall,0.7,citrus|melon|rind|water,0.7,0.8,0.2,0.4,1.0,0.6,0.4,1
-United States,California,Moscato,Barefoot,NV,0.09,6.5,0.2,pale straw,1,citrus|floral|grapefruit|pinesol,0.6,grape|honey|peach,0.6,0.6,0.0,0.4,0.2,0.4,0.2,0
-United States,New York,White Blend,Billy Hill Love My Goat,NV,0.11,8.5,0.2,pale straw,0,floral|green apple|kerosene|wheat|wheat,0.6,citrus|green apple|pear|sweet,0.6,0.8,0.0,0.4,0.6,0.6,0.4,0
-United States,New York,Pinot Gris,Bravery,2023,0.12,26.0,0.2,pale straw,0,apple|nut|stone|tart|wood,0.4,green apple|lemon|nut|ripe melon,0.6,0.8,0.0,0.4,1.0,0.8,0.4,1
-United States,California,Pinot Noir,Cambria,2022,0.135,18.0,0.6,ruby,0,charcoal|cherry|cranberry|earth|pepper|rhubarb,0.6,charcoal|cherry|earth|red berry|strawberry,0.6,0.8,0.4,0.6,1.0,0.6,0.6,0
-United States,California,Pinot Noir,Cambria Julias Vineyard,2022,0.132,24.0,0.6,ruby,0,berry|cherry|spice,0.8,cherry|raspberry|spice,0.8,0.8,0.4,0.6,1.0,0.8,0.6,1
-United States,Washington,Merlot,Charles Smith The Velvet Devil,2021,0.135,13.5,0.8,ruby,0,apple pie|bell pepper|brown sugar|cherry|plum,0.7,black cherry|chocolate|plum,0.7,0.6,0.6,0.8,1.0,0.6,0.6,0
-United States,Washington,Riesling,Chateau Ste Michelle,2023,0.12,10.0,0.2,pale straw,0,mineral|sour canteloupe|wet leaf,0.6,apple|bitter rind|citrus|sour canteloupe,0.6,0.8,0.0,0.4,0.6,0.6,0.4,2
-United States,California,Zinfandel,Cline Ancient Vines,2022,0.145,15.0,1.0,deep ruby,0,cotton candy grape|jam|pepper|smokey|strawberry,0.8,black cherry|pepper|plum|smoke,0.8,0.6,0.6,1.0,0.8,0.8,1.0,1
-United States,Washington,Syrah,Columbia Crest,2020,0.135,9.5,1.0,deep ruby,0,currant|dark chocolate|extract|fresh bark|plum|smoke,0.8,blackberry|fresh bark|plum,0.8,0.6,0.8,1.0,1.0,0.8,0.8,0
-United States,California,Blanc De Pinot Noir,Domaine Chandon,NV,0.125,23.0,0.2,pale straw,1,apple|canned greenbean|date|lemon|malt berry|raisin,0.7,apple|lemon|rind|toast,0.7,0.8,0.0,0.4,0.8,0.8,0.4,0
-United States,New York,Riesling,Dr Frank,2023,0.11,16.0,0.2,pale straw,0,citrus|floral|ginger|nectarine,0.6,apple|creamy|honey|nectarine,0.6,0.8,0.0,0.4,0.6,0.6,0.4,0
-United States,California,Red Blend,Ferrari-Carano Siena,2022,0.148,24.0,0.8,maroon red,0,cherry|herb|lemon|oak|raspberry,0.6,cherry|lemon|oak|raspberry,0.4,0.6,0.4,0.6,1.0,0.6,0.6,1
-United States,Oregon,Gewurztraminer,Foris Estates,2022,0.13,21.5,0.4,golden,0,loam|lychee|orange|rose|spice,0.8,apple|rose|tea|wood,0.8,0.6,0.0,0.6,0.6,0.6,0.4,1
-United States,California,Chardonnay,Grgich Hills,2021,0.135,48.0,0.4,golden,0,butter|cheese|floral|oak|stone,0.8,apple|cheese|lemon|oak,0.8,0.8,0.0,0.8,1.0,0.8,0.6,2
-United States,New York,Red Blend,Hazlitt Red Cat,NV,0.11,9.5,0.6,ruby,0,berry|candy|cough medicine|grape|strawberry syrup,0.6,bubblegum|candy|fruit juice|grape|strawberry,0.6,0.6,0.2,0.4,0.2,0.4,0.4,0
-United States,Washington,Red Blend,Hedges CMS,2020,0.14,13.5,0.8,ruby,0,dirt|herb|oak|plum|soysauce|stem|strawberry,0.6,bitter|blackberry|fruit skin|plum,0.6,0.6,0.6,0.8,1.0,0.6,0.8,1
-United States,California,Red Blend,House Of Brown,2022,0.135,20.0,0.8,ruby,0,cherry|oak|pomegranate,0.6,apple|blackberry|herb|spice|sweet,0.6,0.6,0.6,0.8,1.0,0.6,0.8,1
-United States,Oregon,Pinot Gris,King Estate,2022,0.135,17.5,0.2,pale straw,0,almond|floral|green apple|pear|waterfall,0.6,apple|cheese|citrus|pear,0.6,0.8,0.0,0.4,1.0,0.6,0.4,2
-United States,California,Petite Sirah,Line 39,2020,0.145,10.0,1.0,deep ruby,0,caramel|chocolate|plum|tomato,0.8,blueberry|dark chocolate|plum|smoke|spice|tomato,0.8,0.6,0.8,1.0,1.0,0.8,0.8,1
-United States,New York,Fruit Wine,Montezuma Cranberry Bog,NV,0.11,14.0,0.6,red,0,cranberry|orange|sweet|tart,0.7,cranberry|fruit juice|sweet|tart,0.7,0.8,0.0,0.4,0.2,0.6,0.4,0
-United States,California,Cabernet Sauvignon,Peter Vella,NV,0.11,3.0,0.6,ruby,0,cherry|oak|plum,0.4,cherry|earth|plum,0.4,0.6,0.2,0.4,1.0,0.4,0.4,0
-United States,California,Chardonnay,Peter Vella,NV,0.12,3.0,0.4,golden,0,apple|cheese|lemon|oak|vanilla,0.4,apple|cheese|lemon|oak|vanilla,0.4,0.6,0.0,0.4,0.8,0.4,0.4,0
-United States,New York,Red Blend,Pindar Pythagorus,NV,0.125,13.0,0.8,ruby,0,coffee cake|craisin|plum|unbaked dough,0.6,apple|cabernet|red berry,0.6,0.6,0.6,0.6,0.8,0.6,0.6,1
-United States,New York,Cabernet Franc,Ravines,2021,0.13,22.0,0.8,ruby,0,candle smoke|raspberry|saw dust|sour prune,0.7,citrus|raspberry|rind,0.7,0.8,0.6,0.6,1.0,0.8,0.6,0
-United States,California,Sauvignon Blanc,Robert Mondavi,2022,0.145,28.0,0.2,pale straw,0,citrus|green apple|honeydew|lemon grass,0.6,apple|herb|lemon|vegetal,0.6,1.0,0.0,0.4,1.0,0.6,0.4,0
-United States,California,Cabernet Sauvignon,Rodney Strong,2021,0.145,17.0,1.0,deep ruby,0,blackcurrant|cigar box|eucalyptus|oak|plum|spice,0.8,blackcurrant|cherry|oak|plum|smoke,0.8,0.6,0.8,1.0,1.0,0.8,0.8,1
-United States,California,Merlot,Rodney Strong,2022,0.145,16.0,0.8,ruby,0,cherry|currant|plum|tomato,0.6,black cherry|chocolate|oak,0.6,0.6,0.6,0.8,1.0,0.6,0.6,1
-United States,California,Chardonnay,Toasted Head,2022,0.135,9.0,0.4,golden,0,apple|beeswax|chashew|cheese|oak,0.8,apple|butter|cheese|nut|oak|vanilla,0.8,0.6,0.0,0.8,0.8,0.8,0.6,-1
-United States,New York,White Blend,Weis Perle,2023,0.115,18.5,0.2,pale straw,0,apple|citrus|floral|orchid|water,0.6,apple|citrus|grapefruit,0.6,0.8,0.0,0.4,0.6,0.6,0.4,2
-United States,Oregon,Pinot Noir,Willamette Valley Vineyards Whole Cluster,2022,0.132,17.0,0.6,ruby,0,balsamic|earth|heady|stem|strawberry|wood,0.7,cranberry|dried fruit|earth|herb|red cherry,0.7,0.8,0.4,0.6,1.0,0.8,0.6,-1
+country,region,grape,producer,vintage,alcohol,price,visible_depth,color,sparkling,fortified,smells,smell_intensity,flavors,flavor_intensity,acidity,tannins,body,dryness,length,warmth,rating
+Argentina,Mendoza,Malbec,Alamos,2023,0.135,10.0,1.0,deep ruby,0,0,black pepper|caramel|currant|oak|plum|steak sauce,0.8,black pepper|cherry|lemon grass|smoke,0.8,0.6,0.6,1.0,1.0,0.8,0.8,1
+Argentina,Salta,Torrontes,Torino Cuma,2023,0.135,11.0,0.2,pale straw,0,0,citrus|floral|honeysuckle|manderine|orange|wet stone,0.8,candle smoke|lemon|orange|sour blueberry,0.8,0.8,0.0,0.4,0.8,0.6,0.4,2
+Australia,South Eastern Australia,Shiraz,19 Crimes,NV,0.135,9.5,1.0,deep ruby,0,0,cherry|dates|oak|tootsie pop|vanilla|wet earth,0.7,grape|plum|steak,0.7,0.6,0.6,1.0,0.8,0.8,0.8,0
+Australia,Alpine Valleys,Riesling,Frisk,NV,0.1,10.0,0.2,pale straw,1,0,floral|lime sorbet|mineral|nectarine|peach,0.6,citrus|honeydew|lime|nectarine|peach,0.6,1.0,0.0,0.2,0.4,0.6,0.2,0
+Australia,Yarra Valley,Pinot Noir,Innocent Bystander,2022,0.14,25.0,0.6,ruby,0,0,apple|cherry|chocolate|earth|tomato,0.7,crab apple|red cherry|spice,0.7,0.8,0.4,0.6,1.0,0.8,0.6,1
+Australia,McLaren Vale,Red Blend,Paxton AAA,2022,0.143,20.0,0.8,ruby,0,0,carrot cake|cherry|herb|plum|steak|tomato,0.7,apple skin|marinade|plum,0.7,0.6,0.6,0.8,1.0,0.8,0.8,2
+Australia,South Eastern Australia,Chardonnay,Yellow Tail,2024,0.13,6.0,0.4,golden,0,0,dust|lemon meringue|rubber chips,0.6,banana pudding|lemon|spice|vanilla,0.6,0.6,0.0,0.6,0.8,0.6,0.6,0
+Austria,Kamptal,Riesling,Brundlmayer Terrassen,2023,0.13,30.0,0.2,pale straw,0,0,apple|cheese|citrus|mineral|wet stone,0.8,apple|cheese rind|lemon|mineral|squash,0.8,1.0,0.0,0.4,1.0,0.8,0.4,2
+Chile,Central Valley,Carmenere,Concha Y Toro Casillero Del Diablo Reserva,2023,0.135,8.0,0.8,ruby,0,0,bell pepper|charred meat|plum|red pepper flakes,0.7,chocolate|green apple|pepper|smoke,0.7,0.6,0.6,0.8,1.0,0.6,0.6,1
+Chile,Central Valley,Sauvignon Blanc,Veramonte,2022,0.135,10.0,0.2,pale straw,0,0,apple|citrus|floral|wet stone,0.7,grape|green apple|lemon|lime,0.7,1.0,0.0,0.4,1.0,0.6,0.4,1
+France,Bordeaux,Red Blend,Chateau D'Armailhac,2021,0.13,80.0,1.0,deep ruby,0,0,apple|blackcurrant|cedar|cigar box|meat|roast bell pepper|smoke,0.9,apple|blackcurrant|cedar|cigar box|meat|roast bell pepper|smoke,0.9,0.6,0.8,1.0,1.0,1.0,0.8,2
+France,Bordeaux,White Blend,Chateau Gravyville-Lacoste,2023,0.12,17.0,0.2,pale straw,0,0,bell pepper|cheese|citrus|green apple|lemon grass|sugar cookie,0.7,cheese rind|coca-cola|honey|lemon|lime|wine,0.7,1.0,0.0,0.4,1.0,0.8,0.4,2
+France,Bordeaux,Red Blend,Chateau Haut-Brisson Grand Cru,2021,0.14,28.0,1.0,deep ruby,0,0,apple|black pepper|blackcurrant|meat|oak|plum|tabacco,0.8,apple|black pepper|blackcurrant|meat|oak|plum|tabacco,0.8,0.6,0.8,1.0,1.0,1.0,0.8,1
+France,Alsace,Pinot Gris,Hugel,2022,0.145,25.0,0.4,golden straw,0,0,airy citrus|lemon|pear|wood,0.6,apple|citrus|pear,0.6,0.6,0.0,0.6,0.8,0.6,0.6,1
+France,Burgundy,Pinot Noir,Joseph Drouhin,2022,0.135,26.0,0.6,ruby,0,0,cranberry|disinfectant|leather|strawberry,0.7,red cherry|sour plum,0.7,0.8,0.4,0.6,1.0,0.8,0.6,1
+France,Burgundy,Chardonnay,Louis Jadot,2022,0.125,24.0,0.2,pale straw,0,0,alfredo|carrot|cheese|orange|pear|wet stone,0.7,butter|cheese rind|green apple|lemon|salt,0.7,1.0,0.0,0.6,1.0,0.8,0.4,2
+France,Burgundy,Pinot Noir,Louis Latour,2022,0.13,35.0,0.6,ruby,0,0,blackberry|butter|lemon|michelada|salt|string cheese,0.7,chalk|chocolate|sour strawberry,0.7,0.8,0.4,0.6,1.0,0.8,0.6,1
+France,Champagne,White Blend,Moet Et Chandon Imperial Brut,NV,0.125,80.0,0.2,pale straw,1,0,burnt date|flour|tamarind candy|toast,0.8,brioche|malt date|sweet,0.8,1.0,0.0,0.6,1.0,1.0,0.6,-1
+France,Alsace,Riesling,Trimbach,2022,0.125,16.0,0.2,pale straw,0,0,floral|kerosene|mineral|orange|perfume,0.8,apricot|leather|lemon|lime|mineral|orange,0.8,1.0,0.0,0.4,1.0,0.8,0.4,0
+Germany,Rheinhessen,Riesling,Blue Nun 24k Gold,NV,0.11,14.0,0.2,pale straw,1,0,apple|apricot|cheese rind|citrus|disinfectant|floral|water,0.6,apricot|cheese|citrus|honey|sweet,0.6,0.8,0.0,0.4,0.6,0.6,0.4,1
+Germany,Mosel,Riesling,Dr Loosen Kabinett,2022,0.08,28.0,0.2,pale straw,0,0,bitter rind|floral|kerosene|leather|sweet apple,0.8,apple|creamy|honey|lemon|synthetic,0.8,1.0,0.0,0.4,0.6,0.6,0.2,0
+Germany,Mosel,Riesling,Dr Loosen Spatlese,2022,0.08,32.0,0.2,pale straw,0,0,floral|honey|kiwi|leather|sweet apple,0.8,apple|citrus|grape|honey|lemon,0.8,0.8,0.0,0.6,0.4,0.8,0.2,2
+Germany,Mosel,Riesling,Schmitt-Sohne Relax,2023,0.09,10.0,0.2,pale straw,0,0,apple|floral|honeysuckle|peach,0.6,apple|honey|lemon|lime|sweet,0.6,0.8,0.0,0.4,0.6,0.6,0.2,1
+Italy,Veneto,White Blend,Cantine,2023,0.14,10.0,0.2,pale straw,0,0,cherry tomato|citrus|dirt|red fruit|tabacco|tomato vine,0.6,coffee cake|earth|fruit|strawberry,0.6,0.8,0.0,0.4,0.8,0.6,0.4,2
+Italy,Sicily,Nero D'Avola,Cusumano,2021,0.135,11.5,0.8,ruby,0,0,berry|craisin|plum|tomato vine,0.7,citrus rind|heady|raspberry|red fruit,0.7,0.6,0.6,0.8,1.0,0.6,0.8,1
+Italy,Tuscany,Sangiovese Blend,Da Vinci,2023,0.135,12.0,0.8,ruby,0,0,cherry|cigar box|expo-marker|plum|red berry|steak sauce,0.7,bitter|fruit skin|wood,0.4,0.8,0.6,0.8,1.0,0.8,0.6,1
+Italy,Piedmont,Asti,Mondoro Spumante,NV,0.075,14.0,0.2,pale straw,1,0,caramel|floral|grape|imperial/belgian beer|peach,0.8,|apple cider vinegar|honey|malt berry|peach|yogurt,0.8,0.6,0.0,0.4,0.2,0.4,0.2,1
+Italy,Emilia-Romagna,Lambrusco,Riunite,NV,0.08,7.5,0.6,ruby,1,0,apple|cranberry juice|jam,0.6,candy|fruit juice|grape|strawberry|sweet,0.6,0.6,0.2,0.4,0.2,0.4,0.2,1
+Italy,Tuscany,Red Blend,Ruffino Modus,2021,0.15,26.0,0.8,blood red,0,0,apple|berry|heady|smoke|spice|wet wood,0.8,apple|blackberry|butter|caramel|spice|sweet,0.8,0.6,0.6,0.8,1.0,0.8,0.8,2
+Italy,Piedmont,Nebbiolo,Silvio Grasso,2019,0.145,33.0,0.8,brick red,0,0,basil|nail polish|prune|rose|vanilla,0.8,cake|orange|spice,0.8,0.8,0.8,0.8,1.0,1.0,0.8,1
+Italy,Venezie,Pinot Grigio,Voga,2022,0.12,11.0,0.2,pale straw,0,0,almond|apple|citrus|honeysuckle|mineral|orange|pear,0.6,apple|honey|lemon|pear|yogurt,0.6,0.8,0.0,0.4,1.0,0.6,0.4,1
+New Zealand,Marlborough,Sauvignon Blanc,Kim Crawford,2024,0.14,14.0,0.2,pale straw,0,0,apple|citrus|grass|herb|tropical,0.9,fresh|lemon|lime|orange,0.9,1.0,0.0,0.4,1.0,0.8,0.4,2
+New Zealand,Hawkes Bay,Chardonnay,Te Mata,2022,0.13,24.0,0.4,golden,0,0,citrus|oak|smoke|urine,0.7,lemon|oak|stone fruit|yogurt,0.7,0.8,0.0,0.8,0.8,0.8,0.6,0
+South Africa,Cape Coast,Chenin Blanc,Man Family Wines,2025,0.13,8.99,0.2,pale straw,0,0,green apple|stem|tomato vine|spice|roast red pepper|dirt,0.8,green apple|spice|pepper|floral,0.8,0.8,0.0,0.4,1.0,1.0,0.4,1
+South Africa,Western Cape,Chenin Blanc,Indaba,2023,0.13,10.0,0.2,pale straw,0,0,floral|green apple|honey|pear|quince,0.6,apple|citrus|earth|pear|spice|tropical fruit,0.6,0.8,0.0,0.4,1.0,0.8,0.4,2
+South Africa,Western Cape,Chenin Blanc,Man Steen,2023,0.135,8.5,0.2,pale straw,0,0,damp clothes|green apple|honey|pear|salt|stone|waxy leaf,0.6,beach|floral|green apple|mineral|pear,0.6,0.8,0.0,0.4,0.8,0.6,0.4,2
+South Africa,Western Cape,Sauvignon Blanc,Mulderbosch,2022,0.13,13.0,0.2,pale straw,0,0,clay|crab apple|honeysuckle|nut|tropical,0.8,citrus|nutty cheese,0.8,1.0,0.0,0.4,1.0,0.6,0.4,1
+South Africa,Robertson,Pinotage,Robertson,2022,0.125,9.5,0.8,ruby,0,0,bbq|berry|charcoal|earth|plum|smoke,0.7,bbq|berry|blackberry|charcoal|earth|plum|smoke,0.7,0.6,0.6,0.8,1.0,0.6,0.8,1
+Spain,Catalonia,Red Blend,Freixenet Cordon,NV,0.115,11.0,0.8,ruby,0,0,grape|grapefruit|pear|spice|stone,0.6,cheese rind|grapefruit|pear,0.6,0.6,0.4,0.6,0.8,0.6,0.6,1
+Spain,Jerez,Sherry Palomino,"Lustau ""Los Arcos""",NV,0.185,17.0,0.2,amber,0,1,malt|soysauce|mirin|shaoxing|orange|vanilla,1.0,nut|caramel|malt berry|lemon,0.8,0.8,0.2,0.6,0.8,1.0,1.0,-2
+Spain,Ribera del Duero,Tempranillo,Condado de Haza Crianza,2020,0.145,22.0,0.8,ruby,0,0,salt|hickory|maple|bacon|smoke|red berry|spice|vanilla,1.0,dark chocolate|red berry|spice|vanilla,0.6,0.6,0.8,0.8,1.0,0.8,0.8,2
+Spain,Rioja,Tempranillo,Campo Viejo,2018,0.135,13.5,0.8,ashy garnet,0,0,oak|malted berry|plum|red fruit|spice|smoke,0.6,red fruit|oak|tabacco,0.4,0.8,0.4,0.4,1.0,0.4,0.6,1
+Spain,Rioja,Tempranillo,Campo Viejo,2022,0.135,10.0,0.8,ruby,0,0,oak|plum|red fruit|spice|vanilla,0.8,cocoa|oak|red fruit|spice|tabacco|vanilla,0.6,0.6,0.4,0.6,1.0,0.8,0.6,2
+Spain,Rioja,Tempranillo,Hacienda Lopez de Haro Reserva,2019,0.145,15.0,0.8,ruby garnet,0,0,red berry|spice|leather|tabacco|oak|chocolate|marmalade|dirt,0.8,red berry|orange|spice|heady|smoke|tabacco,0.6,0.6,0.8,0.6,1.0,0.8,0.6,2
+Portugal,Alentejano,Red Blend,Ciconia,2021,0.135,8.0,1.0,ruby,0,0,salt|wild berry|strawberry|charred wood|smoke|tabacco,0.8,cake|fruit|leather|spice|heady|mellow,0.6,0.6,0.6,0.6,0.8,1.0,0.8,1
+Portugal,Douro Valley,Port Blend,Graham's Six Grapes,NV,0.195,25.0,1.0,plum,0,1,heady|cherry|chocolate|fruit|fall leaves,1.0,confectionary fruit|heady|spice,0.8,0.6,0.8,1.0,0.2,1.0,1.0,0
+Portugal,"Vinho Verde, Minho",White Blend,Aveledas Casal Garcia,NV,0.095,8.5,0.2,pale straw,0,0,waxy apple|apple|lime|mineral|fresh,0.8,green apple|lime|white fruit,0.8,0.8,0.0,0.4,0.8,0.4,0.2,1
+United States,New York,Rose,Airy Acres,2024,0.12,25.0,0.4,pink,0,0,cheese|floral|stone fruit|strawberry|waterfall,0.7,citrus|melon|rind|water,0.7,0.8,0.2,0.4,1.0,0.6,0.4,1
+United States,California,Moscato,Barefoot,NV,0.09,6.5,0.2,pale straw,1,0,citrus|floral|grapefruit|pinesol,0.6,grape|honey|peach,0.6,0.6,0.0,0.4,0.2,0.4,0.2,0
+United States,New York,White Blend,Billy Hill Love My Goat,NV,0.11,8.5,0.2,pale straw,0,0,floral|green apple|kerosene|wheat|wheat,0.6,citrus|green apple|pear|sweet,0.6,0.8,0.0,0.4,0.6,0.6,0.4,0
+United States,New York,Pinot Gris,Bravery,2023,0.12,26.0,0.2,pale straw,0,0,apple|nut|stone|tart|wood,0.4,green apple|lemon|nut|ripe melon,0.6,0.8,0.0,0.4,1.0,0.8,0.4,1
+United States,California,Pinot Noir,Cambria,2022,0.135,18.0,0.6,ruby,0,0,charcoal|cherry|cranberry|earth|pepper|rhubarb,0.6,charcoal|cherry|earth|red berry|strawberry,0.6,0.8,0.4,0.6,1.0,0.6,0.6,0
+United States,California,Pinot Noir,Cambria Julias Vineyard,2022,0.132,24.0,0.6,ruby,0,0,berry|cherry|spice,0.8,cherry|raspberry|spice,0.8,0.8,0.4,0.6,1.0,0.8,0.6,1
+United States,Washington,Merlot,Charles Smith The Velvet Devil,2021,0.135,13.5,0.8,ruby,0,0,apple pie|bell pepper|brown sugar|cherry|plum,0.7,black cherry|chocolate|plum,0.7,0.6,0.6,0.8,1.0,0.6,0.6,0
+United States,Washington,Riesling,Chateau Ste Michelle,2023,0.12,10.0,0.2,pale straw,0,0,mineral|sour canteloupe|wet leaf,0.6,apple|bitter rind|citrus|sour canteloupe,0.6,0.8,0.0,0.4,0.6,0.6,0.4,2
+United States,California,Zinfandel,Cline Ancient Vines,2022,0.145,15.0,1.0,deep ruby,0,0,cotton candy grape|jam|pepper|smokey|strawberry,0.8,black cherry|pepper|plum|smoke,0.8,0.6,0.6,1.0,0.8,0.8,1.0,1
+United States,Washington,Syrah,Columbia Crest,2020,0.135,9.5,1.0,deep ruby,0,0,currant|dark chocolate|extract|fresh bark|plum|smoke,0.8,blackberry|fresh bark|plum,0.8,0.6,0.8,1.0,1.0,0.8,0.8,0
+United States,California,Blanc De Pinot Noir,Domaine Chandon,NV,0.125,23.0,0.2,pale straw,1,0,apple|canned greenbean|date|lemon|malt berry|raisin,0.7,apple|lemon|rind|toast,0.7,0.8,0.0,0.4,0.8,0.8,0.4,0
+United States,New York,Riesling,Dr Frank,2023,0.11,16.0,0.2,pale straw,0,0,citrus|floral|ginger|nectarine,0.6,apple|creamy|honey|nectarine,0.6,0.8,0.0,0.4,0.6,0.6,0.4,0
+United States,California,Red Blend,Ferrari-Carano Siena,2022,0.148,24.0,0.8,maroon red,0,0,cherry|herb|lemon|oak|raspberry,0.6,cherry|lemon|oak|raspberry,0.4,0.6,0.4,0.6,1.0,0.6,0.6,1
+United States,Oregon,Gewurztraminer,Foris Estates,2022,0.13,21.5,0.4,golden,0,0,loam|lychee|orange|rose|spice,0.8,apple|rose|tea|wood,0.8,0.6,0.0,0.6,0.6,0.6,0.4,1
+United States,California,Chardonnay,Grgich Hills,2021,0.135,48.0,0.4,golden,0,0,butter|cheese|floral|oak|stone,0.8,apple|cheese|lemon|oak,0.8,0.8,0.0,0.8,1.0,0.8,0.6,2
+United States,New York,Red Blend,Hazlitt Red Cat,NV,0.11,9.5,0.6,ruby,0,0,berry|candy|cough medicine|grape|strawberry syrup,0.6,bubblegum|candy|fruit juice|grape|strawberry,0.6,0.6,0.2,0.4,0.2,0.4,0.4,0
+United States,Washington,Red Blend,Hedges CMS,2020,0.14,13.5,0.8,ruby,0,0,dirt|herb|oak|plum|soysauce|stem|strawberry,0.6,bitter|blackberry|fruit skin|plum,0.6,0.6,0.6,0.8,1.0,0.6,0.8,1
+United States,California,Red Blend,House Of Brown,2022,0.135,20.0,0.8,ruby,0,0,cherry|oak|pomegranate,0.6,apple|blackberry|herb|spice|sweet,0.6,0.6,0.6,0.8,1.0,0.6,0.8,1
+United States,Oregon,Pinot Gris,King Estate,2022,0.135,17.5,0.2,pale straw,0,0,almond|floral|green apple|pear|waterfall,0.6,apple|cheese|citrus|pear,0.6,0.8,0.0,0.4,1.0,0.6,0.4,2
+United States,California,Petite Sirah,Line 39,2020,0.145,10.0,1.0,deep ruby,0,0,caramel|chocolate|plum|tomato,0.8,blueberry|dark chocolate|plum|smoke|spice|tomato,0.8,0.6,0.8,1.0,1.0,0.8,0.8,1
+United States,New York,Fruit Wine,Montezuma Cranberry Bog,NV,0.11,14.0,0.6,red,0,0,cranberry|orange|sweet|tart,0.7,cranberry|fruit juice|sweet|tart,0.7,0.8,0.0,0.4,0.2,0.6,0.4,0
+United States,California,Cabernet Sauvignon,Peter Vella,NV,0.11,3.0,0.6,ruby,0,0,cherry|oak|plum,0.4,cherry|earth|plum,0.4,0.6,0.2,0.4,1.0,0.4,0.4,0
+United States,California,Chardonnay,Peter Vella,NV,0.12,3.0,0.4,golden,0,0,apple|cheese|lemon|oak|vanilla,0.4,apple|cheese|lemon|oak|vanilla,0.4,0.6,0.0,0.4,0.8,0.4,0.4,0
+United States,New York,Red Blend,Pindar Pythagorus,NV,0.125,13.0,0.8,ruby,0,0,coffee cake|craisin|plum|unbaked dough,0.6,apple|cabernet|red berry,0.6,0.6,0.6,0.6,0.8,0.6,0.6,1
+United States,New York,Cabernet Franc,Ravines,2021,0.13,22.0,0.8,ruby,0,0,candle smoke|raspberry|saw dust|sour prune,0.7,citrus|raspberry|rind,0.7,0.8,0.6,0.6,1.0,0.8,0.6,0
+United States,California,Sauvignon Blanc,Robert Mondavi,2022,0.145,28.0,0.2,pale straw,0,0,citrus|green apple|honeydew|lemon grass,0.6,apple|herb|lemon|vegetal,0.6,1.0,0.0,0.4,1.0,0.6,0.4,0
+United States,California,Cabernet Sauvignon,Rodney Strong,2021,0.145,17.0,1.0,deep ruby,0,0,blackcurrant|cigar box|eucalyptus|oak|plum|spice,0.8,blackcurrant|cherry|oak|plum|smoke,0.8,0.6,0.8,1.0,1.0,0.8,0.8,1
+United States,California,Merlot,Rodney Strong,2022,0.145,16.0,0.8,ruby,0,0,cherry|currant|plum|tomato,0.6,black cherry|chocolate|oak,0.6,0.6,0.6,0.8,1.0,0.6,0.6,1
+United States,California,Chardonnay,Toasted Head,2022,0.135,9.0,0.4,golden,0,0,apple|beeswax|chashew|cheese|oak,0.8,apple|butter|cheese|nut|oak|vanilla,0.8,0.6,0.0,0.8,0.8,0.8,0.6,-1
+United States,New York,White Blend,Weis Perle,2023,0.115,18.5,0.2,pale straw,0,0,apple|citrus|floral|orchid|water,0.6,apple|citrus|grapefruit,0.6,0.8,0.0,0.4,0.6,0.6,0.4,2
+United States,Oregon,Pinot Noir,Willamette Valley Vineyards Whole Cluster,2022,0.132,17.0,0.6,ruby,0,0,balsamic|earth|heady|stem|strawberry|wood,0.7,cranberry|dried fruit|earth|herb|red cherry,0.7,0.8,0.4,0.6,1.0,0.8,0.6,-1

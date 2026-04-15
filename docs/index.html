@@ -413,6 +413,7 @@
         <option value="region">Region</option>
         <option value="color">Wine Color</option>
         <option value="sparkling">Sparkling</option>
+        <option value="fortified">Fortified</option>
         <option value="alcohol">Alcohol</option>
         <option value="price">Price</option>
         <option value="body">Body</option>
@@ -503,6 +504,11 @@
 
   const SPARKLING_COLORS = {
     yes: { label: "Sparkling", color: [1.0,  0.85, 0.2 ] },
+    no:  { label: "Not",       color: [0.16, 0.16, 0.14] },
+  };
+
+  const FORTIFIED_COLORS = {
+    yes: { label: "Fortified", color: [0.55, 0.27, 0.07] },
     no:  { label: "Not",       color: [0.16, 0.16, 0.14] },
   };
 
@@ -1004,6 +1010,14 @@
       legend.innerHTML = legendItem(rgbCss(SPARKLING_COLORS.yes.color), SPARKLING_COLORS.yes.label) +
                          legendItem(rgbCss(SPARKLING_COLORS.no.color),  SPARKLING_COLORS.no.label);
 
+      } else if (field === "fortified") {
+      data.forEach((w, i) => {
+        const s = w.fortified ? FORTIFIED_COLORS.yes : FORTIFIED_COLORS.no;
+        setPointColor(i, ...s.color);
+      });
+      legend.innerHTML = legendItem(rgbCss(FORTIFIED_COLORS.yes.color), FORTIFIED_COLORS.yes.label) +
+                         legendItem(rgbCss(FORTIFIED_COLORS.no.color),  FORTIFIED_COLORS.no.label);
+
     } else if (field === "color") {
       data.forEach((w, i) => {
         const c = new THREE.Color(WINE_COLOR_MAP[w.color] || "#888888");
@@ -1048,7 +1062,7 @@
 
     ttBody.innerHTML = `
       <div class="row">Region <span>${w.region}, ${w.country}</span></div>
-      <div class="row">Color <span>${titleCase(w.color)}</span> • Price <span>$${w.price.toFixed(0)}</span> • ABV <span>${(w.alcohol*100).toFixed(1)}%</span>${w.sparkling ? " · 🫧 Sparkling" : ""}</div>
+      <div class="row">Color <span>${titleCase(w.color)}</span> • Price <span>$${w.price.toFixed(0)}</span> • ABV <span>${(w.alcohol*100).toFixed(1)}%</span>${w.sparkling ? " · 🫧 Sparkling" : w.fortified ? " · 🍷 Fortified" : ""}</div>
       <div class="divider"></div>
       <div class="row">Body <span>${scaleLabel(w.body)}</span> • Acidity <span>${scaleLabel(w.acidity)}</span> • Tannin <span>${scaleLabel(w.tannins)}</span></div>
       <div class="row">Dryness <span>${scaleLabel(w.dryness)}</span> • Length <span>${scaleLabel(w.length)}</span> • Warmth <span>${scaleLabel(w.warmth)}</span></div>
