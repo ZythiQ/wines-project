@@ -14,7 +14,7 @@ CSV_FILE = r"C:\Users\zvanh\Downloads\Classwork\25-26\Spring\HSPT-160\wines-proj
 
 FIELDS = [
     "country", "region", "grape", "producer", "vintage",
-    "alcohol", "price", "visible_depth", "color", "sparkling", "smells", "smell_intensity",
+    "alcohol", "price", "visible_depth", "color", "sparkling", "fortified", "smells", "smell_intensity",
     "flavors", "flavor_intensity", "acidity", "tannins", "body", "dryness",
     "length", "warmth", "rating"
 ]
@@ -245,6 +245,7 @@ def prompt_wine(defaults=None):
     wine["visible_depth"]    = ask_scale("Depth", d_num("visible_depth"))
     wine["color"]            = ask_str("Color", d_str("color"), colors_ext)
     wine["sparkling"]        = ask_yes_no("Sparkling?", default=False)
+    wine["fortified"]        = ask_yes_no("Fortified?", default=False)
     wine["smells"]           = ask_list("Smells", d_str("smells"), smells_flavs)
     wine["smell_intensity"]  = ask_scale("Smell intensity", d_num("smell_intensity"))
     wine["flavors"]          = ask_list("Flavors", d_str("flavors"), smells_flavs)
